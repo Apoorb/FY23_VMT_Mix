@@ -172,6 +172,6 @@ if __name__ == "__main__":
     main()
     print(
         "----------------------------------------------------------------------------\n"
-        "Finished Processing adt_to_aadt_fac.py\n"
+        "Finished Processing iii_adt_to_aadt_fac.py\n"
         "----------------------------------------------------------------------------\n"
     )
