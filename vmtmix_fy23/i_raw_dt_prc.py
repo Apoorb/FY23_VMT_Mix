@@ -181,7 +181,7 @@ def get_sta_pre_id_suf_cmb(data_, sub_col):
     return data_1_
 
 
-if __name__ == "__main__":
+def main():
     # Set Paths
     path_perm_countr_pq = Path.joinpath(
         path_txdot_fy22, "PERM_CLASS_BY_HR_2013_2021.parquet"
@@ -216,6 +216,10 @@ if __name__ == "__main__":
     txdist = txdist_tmp[["DIST_NBR", "DIST_NM"]].rename(
         columns={"DIST_NBR": "txdot_dist", "DIST_NM": "district"}
     )
+
+
+if __name__ == "__main__":
+    main()
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing i_raw_dt_prc.py\n"
