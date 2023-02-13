@@ -193,7 +193,7 @@ def create_sut_fueltype_map():
     return sut_df_1
 
 
-if __name__ == "_main__":
+if __name__ == "__main__":
     connect_to_server_db("movesdb20220105")
     conn = connect_to_server_db(database_nm="movesdb20220105")
     with conn:
@@ -203,16 +203,4 @@ if __name__ == "_main__":
     db = "movesdb20220105"
     engine = create_engine(f"mariadb+mariadbconnector://root:moves@127.0.0.1:3308/{db}")
     mvs303samvehpop_ = pd.read_sql(sql, con=engine)
-
-    import requests
-
-    url = "https://geo.dot.gov/server/rest/services/Hosted/Texas_2018_PR/FeatureServer/0"
-
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        data = response.json()
-        # do something with the data
-    else:
-        print("Request failed with status code:", response.status_code)
 
