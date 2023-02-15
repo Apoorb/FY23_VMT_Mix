@@ -50,7 +50,7 @@ paths = [
     path_faf,
     path_interm,
     path_output,
-    path_fig_dir,
+    # path_fig_dir,
 ]
 
 for path_ in paths:
@@ -108,6 +108,7 @@ def timing(f):
     It takes a function as an argument and returns a wrapped version with timing
     functionality.
     """
+
     @wraps(f)
     def wrap(*args, **kw):
         ts = time()
@@ -203,4 +204,3 @@ if __name__ == "__main__":
     db = "movesdb20220105"
     engine = create_engine(f"mariadb+mariadbconnector://root:moves@127.0.0.1:3308/{db}")
     mvs303samvehpop_ = pd.read_sql(sql, con=engine)
-

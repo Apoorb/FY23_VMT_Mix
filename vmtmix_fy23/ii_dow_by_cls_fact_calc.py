@@ -1,8 +1,9 @@
 """
-Use Dec 2021 TxDOT Perm counter data to get DOW factors by different vehicle category.
+Use TxDOT Perm counter data to get DOW factors by different vehicle category.
 Use the formula used by Tao to be f_d,m ATR factor to get this factor by different
 vehicle categories.
-Created by: Apoorba Bibeka
+Created by: Apoorb
+Created/ Modified on: 02/14/2023
 """
 from pathlib import Path
 import pandas as pd
@@ -29,15 +30,6 @@ def fun_region_episode(atr_data, episode_index, region_cat_name):
     MPO) and episode (episode_index, e.g., weekend, summer) the region_cat_name should
     a field in the df atr_data, episode_index is a column of logical variable whose
     length is the same as df atr_data
-    Parameters
-    ----------
-    atr_data
-    episode_index
-    region_cat_name
-
-    Returns
-    -------
-
     """
     episode_atr_data = atr_data[episode_index]
     region_episode_atr_data = (
@@ -127,8 +119,8 @@ def conv_aadt_adt_mnth_dow_by_vehcat(min_yr=2013, max_yr=2019):
     # all records included
     # define the region for which the factors will be generated
     Selected_region = (
-        "district"
-    )  # the region needs to be the same as the field name in the ATR data
+        "district"  # the region needs to be the same as the field name in the ATR data
+    )
     perm_countr_fil.groupby("district").sta_pre_id_suf_fr.nunique()
     atr_db_all = perm_countr_fil.groupby(
         ["sta_pre_id_suf_fr", "district", "mvs_rdtype", "date_", "mnth_nm", "dow_nm"],
@@ -184,11 +176,11 @@ def conv_aadt_adt_mnth_dow_by_vehcat(min_yr=2013, max_yr=2019):
     )
     with switchoff_chainedass_warn:
         df_adt["f_m_d_MC"] = df_adt.MC_dow / df_adt.MC
-    df_adt["f_m_d_PC"] = df_adt.PC_dow / df_adt.PC
-    df_adt["f_m_d_PT_LCT"] = df_adt.PT_LCT_dow / df_adt.PT_LCT
-    df_adt["f_m_d_Bus"] = df_adt.Bus_dow / df_adt.Bus
-    df_adt["f_m_d_HDV"] = df_adt.HDV_dow / df_adt.HDV
-    df_adt["f_m_d_Total"] = df_adt.Total_dow / df_adt.Total
+        df_adt["f_m_d_PC"] = df_adt.PC_dow / df_adt.PC
+        df_adt["f_m_d_PT_LCT"] = df_adt.PT_LCT_dow / df_adt.PT_LCT
+        df_adt["f_m_d_Bus"] = df_adt.Bus_dow / df_adt.Bus
+        df_adt["f_m_d_HDV"] = df_adt.HDV_dow / df_adt.HDV
+        df_adt["f_m_d_Total"] = df_adt.Total_dow / df_adt.Total
     with pd.option_context("display.max_columns", 16):
         print(df_adt.describe())
     df_adt.to_csv(
@@ -198,11 +190,7 @@ def conv_aadt_adt_mnth_dow_by_vehcat(min_yr=2013, max_yr=2019):
 
 @timing
 def main():
-    path_conv_aadt2dow_by_vehcat = Path.joinpath(
-        path_interm, "conv_aadt2dow_by_vehcat.tab"
-    )
     conv_aadt_adt_mnth_dow_by_vehcat()
-    conv_aadt2dow_by_vehcat = pd.read_csv(path_conv_aadt2dow_by_vehcat, sep="\t")
 
 
 if __name__ == "__main__":
@@ -212,3 +200,7 @@ if __name__ == "__main__":
         "Finished Processing iv_dow_fac_vehcat.py\n"
         "----------------------------------------------------------------------------\n"
     )
+    # path_conv_aadt2dow_by_vehcat = Path.joinpath(
+    #     path_interm, "conv_aadt2dow_by_vehcat.tab"
+    # )
+    # conv_aadt2dow_by_vehcat = pd.read_csv(path_conv_aadt2dow_by_vehcat, sep="\t")

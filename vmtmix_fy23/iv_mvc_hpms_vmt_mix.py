@@ -1,14 +1,13 @@
 """
 Get FHWA VMT Mix from Card 4.
 """
+import datetime
+
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import pyarrow.parquet as pq
 import geopandas as gpd
-import seaborn as sns
-import matplotlib
-import matplotlib.pyplot as plt
 import os
 import sys
 
@@ -18,7 +17,6 @@ from vmtmix_fy23.utils import (
     path_interm,
     path_output,
     path_txdot_fy22,
-    path_fig_dir,
     path_txdot_districts_shp,
     ChainedAssignent,
     get_snake_case_dict,
@@ -27,10 +25,6 @@ from vmtmix_fy23.utils import (
 switchoff_chainedass_warn = ChainedAssignent()
 
 
-# ToDo: Covert the classification counts to annual values before adding.
-# ToDo: Create a case for using district level analysis or county level...
-# ToDo: Get the FHWA Mix
-# ToDo: Get DOW factors for different vehicle categories. Apply on FHWA Mix.
 class MVCVmtMix:
     map_ra = dict(
         [(2, "r_ra"), (3, "r_ura"), (4, "u_ra"), (5, "u_ura"), ("ALL", "ALL")]
@@ -55,11 +49,11 @@ class MVCVmtMix:
     agg_vtype_cols = ["MC", "PC", "PT_LCT", "Bus", "SU_MH_RT_HDV", "CT_HDV"]
 
     def __init__(
-        self, path_inp=path_inp, path_interm=path_interm, min_yr=2013, max_yr=2019
+        self, path_inp=path_inp, path_interm=path_interm, min_yr_=2013, max_yr_=2019
     ):
         # Set input paths
         self.path_mvc_pq = Path.joinpath(
-            path_txdot_fy22,  "MVC_2013_21_received_on_030922.parquet"
+            path_txdot_fy22, "MVC_2013_21_received_on_030922.parquet"
         )
         self.path_conv_aadt2mnth_dow = Path.joinpath(
             path_interm, "conv_aadt2mnth_dow.tab"
@@ -68,8 +62,8 @@ class MVCVmtMix:
             path_interm, "conv_aadt2dow_by_vehcat.tab"
         )
         self.path_dgcodes_marty = Path.joinpath(path_inp, "district_dgcode_map.xlsx")
-        self.min_yr = min_yr
-        self.max_yr = max_yr
+        self.min_yr = min_yr_
+        self.max_yr = max_yr_
         self._txdist = pd.DataFrame()
         self.mvc = pd.DataFrame()
         self.conv_aadt_adt_mnth = pd.DataFrame()
@@ -208,30 +202,6 @@ class MVCVmtMix:
         ).sta_pre_id_suf_fr.mean()
         return mvc_filt_adt_sample_size_agg_
 
-    def plot_heatmap(self, mvs_rdtype_nm_sel, spatial_level="district"):
-        mvc_filt_adt_sample_size_agg = self.get_mvc_sample_size(
-            spatial_level=spatial_level
-        )
-        mvc_filt_adt_sample_size_agg.mvs_rdtype_nm.unique()
-        mvc_filt_adt_sample_size_rdtyp = mvc_filt_adt_sample_size_agg.loc[
-            lambda df: df.mvs_rdtype_nm == mvs_rdtype_nm_sel
-        ].pivot(index=spatial_level, columns="hour", values="sta_pre_id_suf_fr")
-        sns.set_context("poster", font_scale=1)
-        fig, ax = plt.subplots(figsize=(12, 6))
-        g = sns.heatmap(
-            mvc_filt_adt_sample_size_rdtyp,
-            cmap="viridis",
-            linewidths=0.5,
-            vmin=0,
-            vmax=mvc_filt_adt_sample_size_agg.sta_pre_id_suf_fr.max(),
-            annot=True,
-            annot_kws={"fontdict": {"fontsize": "small"}},
-            ax=ax,
-            fmt="g",
-        )
-        ax.set_title("{}—{}".format(spatial_level, mvs_rdtype_nm_sel), y=1.05)
-        return fig
-
 
 def get_min_ss_per_loc(mvcvmtmix_, spatial_level_):
     txdist_rdtyp_ = mvcvmtmix_.txdist
@@ -364,41 +334,21 @@ def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
 
 
 def main():
+    now_yr = str(datetime.datetime.now().year)
+    now_mnt = str(datetime.datetime.now().month).zfill(2)
+    now_mntyr = now_mnt + now_yr
     path_out_sta_counts = Path.joinpath(path_interm, "sta_counts_mvc_script_v.csv")
-    path_out_mvc_vmtmix = Path.joinpath(path_output, "mvc_vmtmix.csv")
+    path_out_mvc_vmtmix = Path.joinpath(path_output, f"mvc_vmtmix_{now_mntyr}.csv")
 
     mvcvmtmix = MVCVmtMix()
-    fig_dist = {}
-    ra_nms = list(mvcvmtmix.map_ra.values())
-    for ra_nm in ra_nms:
-        spatial_level = "district"
-        fig_dist[ra_nm] = mvcvmtmix.plot_heatmap(
-            mvs_rdtype_nm_sel=ra_nm, spatial_level=spatial_level
-        )
-        path_fig = Path.joinpath(
-            path_fig_dir, f"mvc_sta_counts_{spatial_level}_{ra_nm}.jpg"
-        )
-        fig_dist[ra_nm].savefig(path_fig)
     mvc_agg_dg = mvcvmtmix.agg_mvc_counts(spatial_level="dgcode")
     mvc_ss_dg = mvcvmtmix.get_mvc_sample_size(spatial_level="dgcode")
-    fig_dg = {}
-    ra_nms = list(mvcvmtmix.map_ra.values())
-    for ra_nm in ra_nms:
-        spatial_level = "dgcode"
-        fig_dg[ra_nm] = mvcvmtmix.plot_heatmap(
-            mvs_rdtype_nm_sel=ra_nm, spatial_level="dgcode"
-        )
-        path_fig = Path.joinpath(
-            path_fig_dir, f"mvc_sta_counts_{spatial_level}_{ra_nm}.jpg"
-        )
-        fig_dg[ra_nm].savefig(path_fig)
     all_district_sta_counts = get_min_ss_per_loc(
         mvcvmtmix_=mvcvmtmix, spatial_level_="district"
     )
     filling_dgcode_sta_counts = get_min_ss_per_loc(
         mvcvmtmix_=mvcvmtmix, spatial_level_="dgcode"
     )
-
     mvc_agg_dist_imputed = handle_low_district_ss(
         all_district_sta_counts_=all_district_sta_counts, mvcvmtmix_=mvcvmtmix
     )

@@ -30,7 +30,6 @@ from vmtmix_fy23.utils import (
 
 
 def get_mvs303samvehpop():
-    # ToDo: Write a class to allow "with" for conn
     conn = connect_to_server_db(database_nm="movesdb20220105")
     with conn:
         sql = "SELECT * FROM samplevehiclepopulation"
@@ -224,7 +223,6 @@ def get_mvs303defaultsutdist():
             "activity_frac_modhpms",
         ]
     )
-    # TODO: Extract the SUShT vs. SULhT and CShT vs. CLhT distribution.
     return mvs303defact_relvnt
 
 

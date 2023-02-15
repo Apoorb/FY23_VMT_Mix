@@ -70,22 +70,18 @@ def conv_aadt_adt_mnth_dow(min_yr=2013, max_yr=2019):
         "H24",
         "TOTAL",
     ]
-    atr_file = Path.joinpath(
-        path_txdot_fy22, "TxDOT_PERM_HOURLY_DATA_2013_092021.csv"
-    )
+    atr_file = Path.joinpath(path_txdot_fy22, "TxDOT_PERM_HOURLY_DATA_2013_092021.csv")
     atr_db_all = pd.read_csv(atr_file, low_memory=False, dtype={"Date": str})
     atr_db_all["ST_DATE"] = pd.to_datetime(atr_db_all.ST_DATE)
     atr_db_all["Year"] = atr_db_all.ST_DATE.dt.year
     atr_db_all["Month"] = atr_db_all.ST_DATE.dt.month
     # Extract the day of the week
-    atr_db_all['day'] = atr_db_all['ST_DATE'].dt.dayofweek
+    atr_db_all["day"] = atr_db_all["ST_DATE"].dt.dayofweek
     # Map integers to short day names
-    map_dow = {0: 'Mon', 1: 'Tue', 2: 'Wed', 3: 'Thu', 4: 'Fri', 5: 'Sat', 6: 'Sun'}
+    map_dow = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
     delete_Index = atr_db_all["TOTAL"] == 0
     atr_db_all = atr_db_all[~delete_Index]
-    year_index = (atr_db_all["Year"] >= min_yr) & (
-        atr_db_all["Year"] <= max_yr
-    )
+    year_index = (atr_db_all["Year"] >= min_yr) & (atr_db_all["Year"] <= max_yr)
     atr_db_all = atr_db_all[year_index]
     assert all(
         atr_db_all.groupby(["DISTRICT"]).LOCAL_ID.nunique().values >= 5
@@ -95,8 +91,8 @@ def conv_aadt_adt_mnth_dow(min_yr=2013, max_yr=2019):
     all_index = atr_db_all["Month"] > 0
     # define the region for which the factors will be generated
     Selected_region = (
-        "DISTRICT"
-    )  # the region needs to be the same as the field name in the ATR data
+        "DISTRICT"  # the region needs to be the same as the field name in the ATR data
+    )
     map_mnth = {
         1: "Jan",
         2: "Feb",
@@ -137,9 +133,7 @@ def conv_aadt_adt_mnth_dow(min_yr=2013, max_yr=2019):
         suffixes=("", "_r"),
     )
     month_adt = (
-        atr_db_all.groupby([Selected_region, "Month", "day"])
-        .mean()
-        .reset_index()
+        atr_db_all.groupby([Selected_region, "Month", "day"]).mean().reset_index()
     )
     month_adt = month_adt[[Selected_region, "Month", "day", "TOTAL"]]
     month_adt["dow_nm"] = month_adt["day"].map(map_dow)
@@ -162,10 +156,7 @@ def conv_aadt_adt_mnth_dow(min_yr=2013, max_yr=2019):
 
 @timing
 def main():
-    path_conv_aadt2mnth_dow = Path.joinpath(path_interm, "conv_aadt2mnth_dow.tab")
-    if not path_conv_aadt2mnth_dow.exists():
-        conv_aadt_adt_mnth_dow()
-    conv_aadt_adt_mnth = pd.read_csv(path_conv_aadt2mnth_dow, sep="\t")
+    conv_aadt_adt_mnth_dow()
 
 
 if __name__ == "__main__":
@@ -175,3 +166,5 @@ if __name__ == "__main__":
         "Finished Processing iii_adt_to_aadt_fac.py\n"
         "----------------------------------------------------------------------------\n"
     )
+    # path_conv_aadt2mnth_dow = Path.joinpath(path_interm, "conv_aadt2mnth_dow.tab")
+    # conv_aadt_adt_mnth = pd.read_csv(path_conv_aadt2mnth_dow, sep="\t")

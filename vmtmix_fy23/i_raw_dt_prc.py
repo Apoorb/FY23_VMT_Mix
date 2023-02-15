@@ -1,7 +1,9 @@
 """
-Explore the data received from TxDOT in Dec 2021. This data contains MVC and PERM
-counter data. Check layers in STAR II (1^) to get more info.
+Pre-process the data received from TxDOT. This data contains MVC and PERM counter data.
+Check layers in STAR II (1^) to get more info.
 1^ https://txdot.public.ms2soft.com/tcds/tsearch.asp?loc=Txdot&mod=TCDS
+Created by: Apoorb
+Created/ Modified on: 02/14/2023
 """
 import pandas as pd
 import numpy as np
@@ -25,7 +27,27 @@ from vmtmix_fy23.utils import (
 switchoff_chainedass_warn = ChainedAssignent()
 
 
-def clean_perm_countr():
+def clean_perm_countr() -> pd.DataFrame:
+    """
+    Clean and preprocess the PERM_CLASS_BY_HR_2013_2021 dataset, which contains hourly
+    count data from the Texas Department of Transportation. The
+    function performs the following operations on the dataset:
+
+    - Reads the CSV file into a pandas DataFrame
+    - Renames the columns of the DataFrame to snake_case
+    - Asserts that the start_time column has a uniform format of 1900-01-01 HH:MM and that all hours from 0 to 23 are present in the column
+    - Converts the start_date and start_time columns to a single datetime column named start_datetime
+    - Drops the start_date and start_time columns
+    - Converts the local_id and master_local_id columns to string type
+    - Uses the get_sta_pre_id_suf_cmb() function to concatenate the station, precinct, ID, and suffix columns of the local_id column
+    - Uses the add_mvs_rdtype_to_perm() function to add a vehicle type column to the DataFrame
+
+    Returns
+    ----------
+    perm_countr_1: pd.DataFrame
+        The cleaned and preprocessed DataFrame containing hourly count data for vehicle
+        permits issued by the Texas Department of Transportation.
+    """
     path_perm_countr_csv = Path.joinpath(
         path_txdot_fy22, "PERM_CLASS_BY_HR_2013_2021.csv"
     )
@@ -64,6 +86,32 @@ def clean_perm_countr():
 
 
 def clean_mvc_countr(mvc_file):
+    """
+    The function clean_mvc_countr takes a file path mvc_file as input and returns a
+    pandas dataframe after cleaning and processing. `mvc_file` contains the Manual
+    Vehicle Count data from TxDOT. The function performs the following operations on the
+    dataset:
+
+    - The function expects the input file to be in excel format.
+    - The function drops the 'start_date' and 'start_time' columns from the input file.
+    - The 'latitude' and 'longitude' columns are converted to float type.
+    - The 'end_date' column is converted to datetime format with format="%m/%d/%Y".
+    - The 'start_datetime' column is created by combining 'start_date' and 'start_time' columns and converted to datetime format with format="%m/%d/%Y %I:%M:%S %p".
+    - The 'location_id' column is created by combining values from the 'station_id', 'pre_dir', 'street', 'suf_dir', and 'cmb_dir' columns using the function 'get_sta_pre_id_suf_cmb'.
+    Parameters
+    ----------
+    mvc_file: str
+        The name of the file to read and clean.
+    Returns
+    -------
+    mvc_countr_fil: pd.DataFrame
+        A cleaned pandas dataframe containing information from the input file. The dataframe has the following columns:
+        - latitude
+        - longitude
+        - end_date
+        - start_datetime
+        - location_id
+    """
     path_mvc_countr_xlsx = Path.joinpath(path_txdot_fy22, mvc_file)
     mvc_countr = pd.read_excel(path_mvc_countr_xlsx)
     mvc_countr.rename(columns=get_snake_case_dict(mvc_countr), inplace=True)
@@ -84,25 +132,6 @@ def clean_mvc_countr(mvc_file):
     mvc_countr_fil = mvc_countr_fil.drop(columns=["start_date", "start_time"])
     mvc_countr_fil = get_sta_pre_id_suf_cmb(data_=mvc_countr_fil, sub_col="location_id")
     return mvc_countr_fil
-
-
-def add_mvs_rdtype_to_mvc(mvc_countr_):
-    mvc_countr_ = mvc_countr_.assign(
-        func_class=lambda df: df.func_class.astype(int),
-        mvs_rdtype=lambda df: np.select(
-            [
-                (df.area_type.isin(["Rural"])) & (df.func_class.isin([1, 2])),
-                (df.area_type.isin(["Rural"])) & (df.func_class.isin([3, 4, 5, 6, 7])),
-                (df.area_type.isin(["Large Urban", "Small Urban", "Urbanized"]))
-                & (df.func_class.isin([1, 2])),
-                (df.area_type.isin(["Large Urban", "Small Urban", "Urbanized"]))
-                & (df.func_class.isin([3, 4, 5, 6, 7])),
-            ],
-            [2, 3, 4, 5],
-            np.nan,
-        ),
-    )
-    return mvc_countr_
 
 
 def add_mvs_rdtype_to_mvc_new(mvc_countr_new_):
@@ -209,14 +238,6 @@ def main():
         perm_countr = clean_perm_countr()
         save_raw_data_as_parquet(mvc_countr_=None, perm_countr_=perm_countr)
 
-    # Read data
-    perm_countr = pq.read_table(path_perm_countr_pq).to_pandas()
-    mvc_countr = pq.read_table(path_mvc_countr_pq).to_pandas()
-    txdist_tmp = gpd.read_file(path_txdot_districts_shp)
-    txdist = txdist_tmp[["DIST_NBR", "DIST_NM"]].rename(
-        columns={"DIST_NBR": "txdot_dist", "DIST_NM": "district"}
-    )
-
 
 if __name__ == "__main__":
     main()
@@ -225,3 +246,10 @@ if __name__ == "__main__":
         "Finished Processing i_raw_dt_prc.py\n"
         "----------------------------------------------------------------------------\n"
     )
+    # # Read data
+    # perm_countr = pq.read_table(path_perm_countr_pq).to_pandas()
+    # mvc_countr = pq.read_table(path_mvc_countr_pq).to_pandas()
+    # txdist_tmp = gpd.read_file(path_txdot_districts_shp)
+    # txdist = txdist_tmp[["DIST_NBR", "DIST_NM"]].rename(
+    #     columns={"DIST_NBR": "txdot_dist", "DIST_NM": "district"}
+    # )

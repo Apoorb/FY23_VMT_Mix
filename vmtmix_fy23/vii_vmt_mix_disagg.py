@@ -1,6 +1,7 @@
 """
 Use FAF and MOVES national level run VMT Mix to get the dissagregated VMT-Mix
 """
+import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -50,7 +51,22 @@ def prc_mvc(mvc_vmtmix_):
 
 def add_yr_mod_cols_mvc(mvc_vmtmix_long_filt_, mvs303defaultsutdist_):
     """Process the mvc vehicle types that were not merged with national default data."""
-    yearIDs = [1990, 2000, 2005, 2010, 2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060]
+    yearIDs = [
+        1990,
+        2000,
+        2005,
+        2010,
+        2015,
+        2020,
+        2025,
+        2030,
+        2035,
+        2040,
+        2045,
+        2050,
+        2055,
+        2060,
+    ]
     assert set(mvs303defaultsutdist_.yearID.unique()) == set(yearIDs)
     with switchoff_chainedass_warn:
         mvc_vmtmix_long_filt_["yearID"] = [yearIDs] * len(mvc_vmtmix_long_filt_)
@@ -277,12 +293,14 @@ def apply_fuel_dist(mvc_suts_, mvs303fueldist_):
     ).agg(hour_set=("hour", set), yearID_set=("yearID", set))
     mvc_suts_ftype_debug[["sourceTypeName", "fuelTypeDesc"]].drop_duplicates()
     assert all(mvc_suts_ftype_debug.hour_set == set(range(0, 24)))
-    assert all(mvc_suts_ftype_debug.yearID_set == set((1990, 2000, 2005)) | set(range(2010, 2065, 5)))
+    assert all(
+        mvc_suts_ftype_debug.yearID_set
+        == set((1990, 2000, 2005)) | set(range(2010, 2065, 5))
+    )
     assert (
         len(mvc_suts_ftype_debug) == 25 * 5 * 4 * 24
     )  # 25 districts # 5 road types (ALL
     # included) # 4 dow # 24 SUT+Ftype
-    # TODO: Think of more tests
     return mvc_suts_ftype
 
 
@@ -360,12 +378,15 @@ def filt_to_tod(mvc_suts_ftype_, tod_map_, txdist_):
 
 
 def main():
+    now_yr = str(datetime.datetime.now().year)
+    now_mnt = str(datetime.datetime.now().month).zfill(2)
+    now_mntyr = now_mnt + now_yr
     # Set path
-    path_mvc_vmtmix = Path.joinpath(path_output, "mvc_vmtmix.csv")
+    path_mvc_vmtmix = list(path_output.glob("mvc_vmtmix_*.csv"))[0]
     path_faf4_su_ct_lh_sh_pct = Path.joinpath(path_interm, "faf4_su_ct_lh_sh_pct.tab")
     path_mvs303defaultsutdist = Path.joinpath(path_interm, "mvs303defaultsutdist.csv")
     path_mvs303fueldist = Path.joinpath(path_interm, "mvs303fueldist.csv")
-    path_fin_vmtmix = Path.joinpath(path_output, "fin_vmtmix.csv")
+    path_fin_vmtmix = Path.joinpath(path_output, f"fin_vmtmix_{now_mntyr}.csv")
     # Read Data
     mvc_vmtmix = pd.read_csv(path_mvc_vmtmix)
     faf4_su_ct_lh_sh_pct = pd.read_csv(path_faf4_su_ct_lh_sh_pct, sep="\t")
