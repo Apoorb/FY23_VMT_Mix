@@ -62,8 +62,8 @@ class MVCVmtMix:
             path_interm, "conv_aadt2dow_by_vehcat.tab"
         )
         self.path_dgcodes_marty = Path.joinpath(path_inp, "district_dgcode_map.xlsx")
-        self.min_yr = min_yr_
-        self.max_yr = max_yr_
+        self.min_yr_ = min_yr_
+        self.max_yr_ = max_yr_
         self._txdist = pd.DataFrame()
         self.mvc = pd.DataFrame()
         self.conv_aadt_adt_mnth = pd.DataFrame()
@@ -91,7 +91,7 @@ class MVCVmtMix:
         df_mvc["mnth_nm"] = df_mvc.start_datetime.dt.month_name().str[:3]
         df_mvc["dow_nm"] = df_mvc.start_datetime.dt.day_name().str[:3]
         df_mvc["date_"] = df_mvc.start_datetime.dt.date
-        df_mvc = df_mvc[(df_mvc.year <= self.max_yr) & (df_mvc.year >= self.min_yr)]
+        df_mvc = df_mvc[(df_mvc.year <= self.max_yr_) & (df_mvc.year >= self.min_yr_)]
         df_mvc_nona = df_mvc.loc[~df_mvc.mvs_rdtype.isna()]
         with switchoff_chainedass_warn:
             df_mvc_nona["mvs_rdtype"] = df_mvc_nona["mvs_rdtype"].astype(int)
@@ -416,14 +416,14 @@ def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
     return mvc_agg_dist_imputed_dow_filt
 
 
-def main():
+def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     now_yr = str(datetime.datetime.now().year)
     now_mnt = str(datetime.datetime.now().month).zfill(2)
     now_mntyr = now_mnt + now_yr
-    path_out_sta_counts = Path.joinpath(path_interm, "sta_counts_mvc_script_v.csv")
-    path_out_mvc_vmtmix = Path.joinpath(path_output, f"mvc_vmtmix_{now_mntyr}.csv")
+    path_out_sta_counts = Path.joinpath(path_interm, "sta_counts_mvc_script_iv.csv")
+    path_out_mvc_vmtmix = Path.joinpath(path_output, f"{out_fi}_{now_mntyr}.csv")
 
-    mvcvmtmix = MVCVmtMix()
+    mvcvmtmix = MVCVmtMix(min_yr_=min_yr, max_yr_=max_yr)
     all_district_sta_counts = get_min_ss_per_loc(
         mvcvmtmix_=mvcvmtmix, spatial_level_="district"
     )
@@ -444,9 +444,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    mvc_hpms_cnt(out_fi="mvc_vmtmix", min_yr=2013, max_yr=2019)
     print(
         "----------------------------------------------------------------------------\n"
-        "Finished Processing iv_mvc_hpms_vmt_mix.py\n"
+        "Finished Processing iv_mvc_hpms_counts.py\n"
         "----------------------------------------------------------------------------\n"
     )

@@ -62,7 +62,7 @@ def unique_datetimes_test(perm_countr_fil_):
 
 
 @timing
-def conv_aadt_adt_mnth_dow_by_vehcat(min_yr=2013, max_yr=2019):
+def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
     """Convert AADT To monthly DOW ADT."""
     path_perm_countr_pq = Path.joinpath(
         path_txdot_fy22, "PERM_CLASS_BY_HR_2013_2021.parquet"
@@ -184,17 +184,17 @@ def conv_aadt_adt_mnth_dow_by_vehcat(min_yr=2013, max_yr=2019):
     with pd.option_context("display.max_columns", 16):
         print(df_adt.describe())
     df_adt.to_csv(
-        Path.joinpath(path_interm, "conv_aadt2dow_by_vehcat.tab"), sep="\t", index=False
+        Path.joinpath(path_interm, out_fi), sep="\t", index=False
     )
 
 
 @timing
-def main():
-    conv_aadt_adt_mnth_dow_by_vehcat()
+def dow_by_cls_fac(out_fi, min_yr, max_yr):
+    conv_aadt_adt_mnth_dow_by_vehcat(out_fi=out_fi, min_yr=min_yr, max_yr=max_yr)
 
 
 if __name__ == "__main__":
-    main()
+    dow_by_cls_fac(out_fi="conv_aadt2dow_by_vehcat.tab", min_yr=2013, max_yr=2019)
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing iv_dow_fac_vehcat.py\n"

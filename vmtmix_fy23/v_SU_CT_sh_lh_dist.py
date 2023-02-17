@@ -388,22 +388,22 @@ class TrucksDist:
         return ass_faf4_tx_3
 
 
-def main():
+def faf4_su_ct_lh_sh_pct(out_fi):
     truckdist = TrucksDist(
         path_faf_=path_faf, path_inp_=path_inp
     )
     truckdist.read_data()
     truckdist.prc_meta_faf4()
     vmt_dist_dict = truckdist.get_vmt_dist()
-    path_out = Path.joinpath(path_interm, "faf4_su_ct_lh_sh_pct.tab")
+    path_out = Path.joinpath(path_interm, out_fi)
     vmt_dist_dict["vmt_dist_tx"].to_csv(path_out, index=False, sep="\t")
     print("Finished processing...")
 
 
 if __name__ == "__main__":
-    main()
+    faf4_su_ct_lh_sh_pct(out_fi="faf4_su_ct_lh_sh_pct.tab")
     print(
         "----------------------------------------------------------------------------\n"
-        "Finished Processing v_SU_CS_sh_lh_dist.py\n"
+        "Finished Processing v_SU_CT_sh_lh_dist.py\n"
         "----------------------------------------------------------------------------\n"
     )

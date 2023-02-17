@@ -39,7 +39,7 @@ def fun_region_episode(atr_data, episode_index, region_cat_name):
 
 
 @timing
-def conv_aadt_adt_mnth_dow(min_yr=2013, max_yr=2019):
+def conv_aadt_adt_mnth_dow(out_fi, min_yr=2013, max_yr=2019):
     """
     Convert AADT To monthly DOW ADT.
     """
@@ -150,17 +150,17 @@ def conv_aadt_adt_mnth_dow(min_yr=2013, max_yr=2019):
     df_adt["f_m_d"] = df_adt.ADT_mnth_dow / df_adt.AADT
     df_adt.f_m_d.describe()
     df_adt.to_csv(
-        Path.joinpath(path_interm, "conv_aadt2mnth_dow.tab"), sep="\t", index=False
+        Path.joinpath(path_interm, out_fi), sep="\t", index=False
     )
 
 
 @timing
-def main():
-    conv_aadt_adt_mnth_dow()
+def mth_dow_fac(out_fi, min_yr, max_yr):
+    conv_aadt_adt_mnth_dow(out_fi=out_fi, min_yr=min_yr, max_yr=max_yr)
 
 
 if __name__ == "__main__":
-    main()
+    mth_dow_fac(out_fi="conv_aadt2mnth_dow.tab", min_yr=2013, max_yr=2019)
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing iii_adt_to_aadt_fac.py\n"

@@ -173,8 +173,8 @@ def add_mvs_rdtype_to_perm(perm_countr_):
 def save_raw_data_as_parquet(
     mvc_countr_,
     perm_countr_,
-    mvc_out_fi="updatedMVC 2013_2021.parquet",
-    perm_out_fi="PERM_CLASS_BY_HR_2013_2021.parquet",
+    mvc_out_fi,
+    perm_out_fi
 ):
     """Clean the raw Permanent and MVC counter data save them as parquet for quick
     loading."""
@@ -210,37 +210,54 @@ def get_sta_pre_id_suf_cmb(data_, sub_col):
     return data_1_
 
 
-def main():
+def raw_dt_prc(
+        MVC_file="MVC_2013_21_received_on_030922",
+        PERM_file="PERM_CLASS_BY_HR_2013_2021"
+):
     # Set Paths
+    # ----------------------------------------------------------------------------------
     path_perm_countr_pq = Path.joinpath(
-        path_txdot_fy22, "PERM_CLASS_BY_HR_2013_2021.parquet"
+        path_txdot_fy22, PERM_file + ".parquet"
     )
     path_mvc_countr_pq = Path.joinpath(
-        path_txdot_fy22, "MVC_2013_21_received_on_030922.parquet"
+        path_txdot_fy22, MVC_file + ".parquet"
     )
+    # Read Data
+    # ----------------------------------------------------------------------------------
+    # Read and Process County Data
+    # -----------------------------
     gdf_county = gpd.read_file(path_county_shp)
     gdf_county = gdf_county.rename(columns=get_snake_case_dict(gdf_county))
     gdf_county_1 = gdf_county.filter(items=["txdot_dist", "cnty_nm"]).rename(
         columns={"cnty_nm": "county"}
     )
+    # Read and Process MVC Data
+    # --------------------------
     if not Path.exists(path_mvc_countr_pq):
         mvc_countr_fil = clean_mvc_countr(
-            mvc_file="MVC_2013_21_received_on_030922.xlsx"
+            mvc_file=MVC_file + ".xlsx"
         )
         mvc_countr_fil = mvc_countr_fil.merge(gdf_county_1, on="county", how="left")
         mvc_countr_fil = add_mvs_rdtype_to_mvc_new(mvc_countr_fil)
         save_raw_data_as_parquet(
             mvc_countr_=mvc_countr_fil,
             perm_countr_=None,
-            mvc_out_fi="MVC_2013_21_received_on_030922.parquet",
+            mvc_out_fi=MVC_file + ".parquet",
+            perm_out_fi=None
         )
+    # Read and Process ATR Data
+    # --------------------------
     if not Path.exists(path_perm_countr_pq):
         perm_countr = clean_perm_countr()
-        save_raw_data_as_parquet(mvc_countr_=None, perm_countr_=perm_countr)
+        save_raw_data_as_parquet(
+            mvc_countr_=None,
+            perm_countr_=perm_countr,
+            mvc_out_fi=None,
+            perm_out_fi=PERM_file+".parquet")
 
 
 if __name__ == "__main__":
-    main()
+    raw_dt_prc()
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing i_raw_dt_prc.py\n"

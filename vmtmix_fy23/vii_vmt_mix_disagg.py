@@ -455,7 +455,7 @@ def filt_to_tod(mvc_suts_ftype_, tod_map_, txdist_):
     return mvc_suts_ftype_tod_agg_
 
 
-def main():
+def fin_vmt_mix(out_file_nm="fin_vmtmix"):
     now_yr = str(datetime.datetime.now().year)
     now_mnt = str(datetime.datetime.now().month).zfill(2)
     now_mntyr = now_mnt + now_yr
@@ -465,7 +465,7 @@ def main():
     path_faf4_su_ct_lh_sh_pct = Path.joinpath(path_interm, "faf4_su_ct_lh_sh_pct.tab")
     path_mvs303defaultsutdist = Path.joinpath(path_interm, "mvs303defaultsutdist.csv")
     path_mvs303fueldist = Path.joinpath(path_interm, "mvs303fueldist.csv")
-    path_fin_vmtmix = Path.joinpath(path_output, f"fin_vmtmix_{now_mntyr}.csv")
+    path_fin_vmtmix = Path.joinpath(path_output, f"{out_file_nm}_{now_mntyr}.csv")
     # Read Data
     mvc_vmtmix = pd.read_csv(path_mvc_vmtmix)
     faf4_su_ct_lh_sh_pct = pd.read_csv(path_faf4_su_ct_lh_sh_pct, sep="\t")
@@ -565,7 +565,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    fin_vmt_mix()
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing vii_vmt_mix_disagg.py\n"

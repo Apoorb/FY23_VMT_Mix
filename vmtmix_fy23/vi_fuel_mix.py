@@ -342,7 +342,7 @@ def get_mvs303fueldist(anlyr = [1990] + list(range(2000, 2065, 5))):
     return mvs303souagedis_fueldist_agg_fil
 
 
-def main():
+def mvs_sut_nd_fuel_mx(fueldist_outfi, sut_hpms_dist_outfi):
     mvs303fueldist = get_mvs303fueldist()
     path_mvs303fueldist = Path.joinpath(path_interm, "mvs303fueldist.csv")
     mvs303fueldist.to_csv(path_mvs303fueldist, index=False)
@@ -358,7 +358,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    mvs_sut_nd_fuel_mx(
+        fueldist_outfi="mvs303fueldist.csv", sut_hpms_dist_outfi="mvs303defaultsutdist.csv"
+    )
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing vi_fuel_mix.py\n"
