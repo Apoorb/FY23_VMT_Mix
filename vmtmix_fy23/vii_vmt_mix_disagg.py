@@ -182,6 +182,7 @@ def fac_sutdist_natdef(mvc_: pd.DataFrame, mvc_vtype_cat: dict,
     the corresponding modified vehicle category to the HPMS vehicle category specified in
     `mvc_vtype_cat` dict and create a mapping between the two, that is used for merging.
     We merge the two dataframe and apply the default MOVES SUT splits to the MVC data.
+
     Parameters
     ----------
     mvc_
@@ -204,7 +205,7 @@ def fac_sutdist_natdef(mvc_: pd.DataFrame, mvc_vtype_cat: dict,
 
     Returns
     -------
-
+        pd.DataFrame
     """
     filt_mvc = (
         lambda df: df[list(mvc_vtype_cat.keys())[0]] == list(mvc_vtype_cat.values())[0]
@@ -458,6 +459,10 @@ def filt_to_tod(mvc_suts_ftype_, tod_map_, txdist_):
 
 @timing
 def fin_vmt_mix(out_file_nm="fin_vmtmix"):
+    """
+    Apply the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
+    and normalize the final counts to get the SUT-FT dist.
+    """
     now_yr = str(datetime.datetime.now().year)
     now_mnt = str(datetime.datetime.now().month).zfill(2)
     now_mntyr = now_mnt + now_yr

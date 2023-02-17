@@ -188,6 +188,10 @@ def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
 
 @timing
 def dow_by_cls_fac(out_fi, min_yr, max_yr):
+    """
+    Create DOW by veh class factors that will be applied to the AADT from ATR data
+    by vehicle class.
+    """
     conv_aadt_adt_mnth_dow_by_vehcat(out_fi=out_fi, min_yr=min_yr, max_yr=max_yr)
 
 

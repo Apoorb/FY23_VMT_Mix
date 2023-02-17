@@ -12,7 +12,6 @@ from time import time
 from sqlalchemy import create_engine
 import mysql.connector as mariadb
 import sys
-import getpass
 import numpy as np
 
 # Set path to the code and datasets.

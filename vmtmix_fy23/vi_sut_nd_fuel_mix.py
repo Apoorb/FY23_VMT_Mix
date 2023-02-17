@@ -1,18 +1,15 @@
 """
-Use the following data to impute missing data:
-- MVS303 default runs
-- MVS 3 samplevehiclepopulation and sourcetypeagedistribution distribution data
-- 2018 vehicle registration data.
+Use the following data to impute missing data
+    MVS303 default runs
+    MVS 3 samplevehiclepopulation and sourcetypeagedistribution distribution data
+    2018 vehicle registration data.
+
 Created by: Apoorb
 Created on: 02/14/2022
 """
 import pandas as pd
 import numpy as np
-import pathlib
 from pathlib import Path
-import geopandas as gpd
-import pyarrow.parquet as pq
-import pyarrow as pa
 import os
 import sys
 
@@ -26,29 +23,17 @@ from vmtmix_fy23.utils import (
 
 def get_mvs303samvehpop() -> pd.DataFrame:
     """
-    Retrieves the aggregated sample vehicle population data from the
-    'samplevehiclepopulation' table in the 'movesdb20220105' database, and returns it as
-    a pandas DataFrame. The returned DataFrame contains the sum of 'stmyFraction' values
-    grouped by 'sourceTypeID', 'modelYearID', and 'fuelTypeID'.
+    Retrieves the aggregated sample vehicle population data from the samplevehiclepopulation
+     table in the movesdb20220105 database, and returns it as pandas DataFrame. The
+     returned DataFrame contains the sum of stmyFraction values rouped by
+     'sourceTypeID', 'modelYearID', and 'fuelTypeID'.
 
-    Returns:
+    Returns
     -------
     pandas.DataFrame
         A DataFrame containing the aggregated sample vehicle population data with the
         following columns:
         'sourceTypeID', 'modelYearID', 'fuelTypeID', and 'stmyFraction'.
-
-    Raises:
-    ------
-    AssertionError
-        If the sum of 'stmyFraction' values for each combination of 'sourceTypeID' and
-        'modelYearID' does not add up to 1 in the aggregated DataFrame.
-
-    Notes:
-    ------
-    This function requires a database connection to retrieve the data. The database name
-    is hardcoded to 'movesdb20220105' and the table name to 'samplevehiclepopulation'.
-    This function uses pandas and numpy libraries.
     """
     conn = connect_to_server_db(database_nm="movesdb20220105")
     with conn:
@@ -66,19 +51,19 @@ def get_mvs303samvehpop() -> pd.DataFrame:
     return mvs303samvehpop_agg_
 
 
-def get_mvs303souagedist(anlyr_: list[int]) -> pd.DataFrame:
+def get_mvs303souagedist(anlyr_: list) -> pd.DataFrame:
     """
     Retrieves the source type age distribution data from the 'sourcetypeagedistribution' table in the
     'movesdb20220105' database for the specified year(s), and returns it as a pandas DataFrame.
 
-    Parameters:
-    ----------
-    anlyr_ : list of int
+    Parameters
+    -----------
+    anlyr_ : list
         A list of integer values representing the year(s) for which to retrieve the source type age distribution
         data.
 
-    Returns:
-    -------
+    Returns
+    --------
     pandas.DataFrame
         A DataFrame containing the source type age distribution data for the specified year(s).
     """
@@ -339,11 +324,12 @@ def get_mvs303fueldist(anlyr = [1990] + list(range(2000, 2065, 5))):
 
 @timing
 def mvs_sut_nd_fuel_mx(fueldist_outfi, sut_hpms_dist_outfi):
+    """Get the SUT dist within HPMS and the fuel dist from MOVES default database."""
     mvs303fueldist = get_mvs303fueldist()
-    path_mvs303fueldist = Path.joinpath(path_interm, "mvs303fueldist.csv")
+    path_mvs303fueldist = Path.joinpath(path_interm, fueldist_outfi)
     mvs303fueldist.to_csv(path_mvs303fueldist, index=False)
     mvs303defaultsutdist = get_mvs303defaultsutdist()
-    path_mvs303defaultsutdist = Path.joinpath(path_interm, "mvs303defaultsutdist.csv")
+    path_mvs303defaultsutdist = Path.joinpath(path_interm, sut_hpms_dist_outfi)
     assert all(
         mvs303defaultsutdist.groupby(
             ["yearID", "roadTypeID", "modhpms_vtype_name"]
@@ -359,6 +345,6 @@ if __name__ == "__main__":
     )
     print(
         "----------------------------------------------------------------------------\n"
-        "Finished Processing vi_fuel_mix.py\n"
+        "Finished Processing vi_sut_nd_fuel_mix.py\n"
         "----------------------------------------------------------------------------\n"
     )

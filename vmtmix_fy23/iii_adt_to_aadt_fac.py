@@ -157,6 +157,11 @@ def conv_aadt_adt_mnth_dow(out_fi, min_yr=2013, max_yr=2019):
 
 @timing
 def mth_dow_fac(out_fi, min_yr, max_yr):
+    """
+    Create DOW + Month Factors to convert the ADT data in the MVC to AADT data. These
+    are not by vehicle class and computed from the expanded ATR data without vehicle
+    class information.
+    """
     conv_aadt_adt_mnth_dow(out_fi=out_fi, min_yr=min_yr, max_yr=max_yr)
 
 

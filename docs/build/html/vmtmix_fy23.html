@@ -1,0 +1,804 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>vmtmix_fy23 package &#8212; VMT-Mix Dev 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="vmtmix_fy23" href="modules.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="vmtmix-fy23-package">
+<h1>vmtmix_fy23 package<a class="headerlink" href="#vmtmix-fy23-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-vmtmix_fy23.figures">
+<span id="vmtmix-fy23-figures-module"></span><h2>vmtmix_fy23.figures module<a class="headerlink" href="#module-vmtmix_fy23.figures" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-vmtmix_fy23.i_raw_dt_prc">
+<span id="vmtmix-fy23-i-raw-dt-prc-module"></span><h2>vmtmix_fy23.i_raw_dt_prc module<a class="headerlink" href="#module-vmtmix_fy23.i_raw_dt_prc" title="Permalink to this heading">¶</a></h2>
+<p>Pre-process the data received from TxDOT. This data contains MVC and PERM counter data.
+Check layers in STAR II (1^) to get more info.
+1^ <a class="reference external" href="https://txdot.public.ms2soft.com/tcds/tsearch.asp?loc=Txdot&amp;mod=TCDS">https://txdot.public.ms2soft.com/tcds/tsearch.asp?loc=Txdot&amp;mod=TCDS</a>
+Created by: Apoorb
+Created/ Modified on: 02/14/2023</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.i_raw_dt_prc.add_mvs_rdtype_to_mvc_new">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.i_raw_dt_prc.</span></span><span class="sig-name descname"><span class="pre">add_mvs_rdtype_to_mvc_new</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_countr_new_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.i_raw_dt_prc.add_mvs_rdtype_to_mvc_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add MOVES road type to the MVC data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.i_raw_dt_prc.add_mvs_rdtype_to_perm">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.i_raw_dt_prc.</span></span><span class="sig-name descname"><span class="pre">add_mvs_rdtype_to_perm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm_countr_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.i_raw_dt_prc.add_mvs_rdtype_to_perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add MOVES road type to the ATR data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.i_raw_dt_prc.clean_mvc_countr">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.i_raw_dt_prc.</span></span><span class="sig-name descname"><span class="pre">clean_mvc_countr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.i_raw_dt_prc.clean_mvc_countr" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function clean_mvc_countr takes a file path mvc_file as input and returns a
+pandas dataframe after cleaning and processing. <cite>mvc_file</cite> contains the Manual
+Vehicle Count data from TxDOT. The function performs the following operations on the
+dataset:</p>
+<ul class="simple">
+<li><p>The function expects the input file to be in excel format.</p></li>
+<li><p>The function drops the ‘start_date’ and ‘start_time’ columns from the input file.</p></li>
+<li><p>The ‘latitude’ and ‘longitude’ columns are converted to float type.</p></li>
+<li><p>The ‘end_date’ column is converted to datetime format with format=”%m/%d/%Y”.</p></li>
+<li><p>The ‘start_datetime’ column is created by combining ‘start_date’ and ‘start_time’ columns and converted to datetime format with format=”%m/%d/%Y %I:%M:%S %p”.</p></li>
+<li><p>The ‘location_id’ column is created by combining values from the ‘station_id’, ‘pre_dir’, ‘street’, ‘suf_dir’, and ‘cmb_dir’ columns using the function ‘get_sta_pre_id_suf_cmb’.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mvc_file</strong> (<em>str</em>) – The name of the file to read and clean.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>mvc_countr_fil</strong> – A cleaned pandas dataframe containing information from the input file. The dataframe has the following columns:
+- latitude
+- longitude
+- end_date
+- start_datetime
+- location_id</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.i_raw_dt_prc.clean_perm_countr">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.i_raw_dt_prc.</span></span><span class="sig-name descname"><span class="pre">clean_perm_countr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#vmtmix_fy23.i_raw_dt_prc.clean_perm_countr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean and preprocess the PERM_CLASS_BY_HR_2013_2021 dataset, which contains hourly
+count data from the Texas Department of Transportation. The
+function performs the following operations on the dataset:</p>
+<ul class="simple">
+<li><p>Reads the CSV file into a pandas DataFrame</p></li>
+<li><p>Renames the columns of the DataFrame to snake_case</p></li>
+<li><p>Asserts that the start_time column has a uniform format of 1900-01-01 HH:MM and that all hours from 0 to 23 are present in the column</p></li>
+<li><p>Converts the start_date and start_time columns to a single datetime column named start_datetime</p></li>
+<li><p>Drops the start_date and start_time columns</p></li>
+<li><p>Converts the local_id and master_local_id columns to string type</p></li>
+<li><p>Uses the get_sta_pre_id_suf_cmb() function to concatenate the station, precinct, ID, and suffix columns of the local_id column</p></li>
+<li><p>Uses the add_mvs_rdtype_to_perm() function to add a vehicle type column to the DataFrame</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>perm_countr_1</strong> – The cleaned and preprocessed DataFrame containing hourly count data for vehicle
+permits issued by the Texas Department of Transportation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.i_raw_dt_prc.get_sta_pre_id_suf_cmb">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.i_raw_dt_prc.</span></span><span class="sig-name descname"><span class="pre">get_sta_pre_id_suf_cmb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_col</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.i_raw_dt_prc.get_sta_pre_id_suf_cmb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return concatenated station identifiers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.i_raw_dt_prc.raw_dt_prc">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.i_raw_dt_prc.</span></span><span class="sig-name descname"><span class="pre">raw_dt_prc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MVC_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MVC_2013_21_received_on_030922'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PERM_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PERM_CLASS_BY_HR_2013_2021'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.i_raw_dt_prc.raw_dt_prc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the raw MVC and permanent counter data to fix date time format, station id,
+map road types to MOVES, and save data to parquet for faster loading.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.i_raw_dt_prc.save_raw_data_as_parquet">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.i_raw_dt_prc.</span></span><span class="sig-name descname"><span class="pre">save_raw_data_as_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_countr_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perm_countr_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvc_out_fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perm_out_fi</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.i_raw_dt_prc.save_raw_data_as_parquet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean the raw Permanent and MVC counter data save them as parquet for quick
+loading.</p>
+</dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23.ii_dow_by_cls_fact_calc">
+<span id="vmtmix-fy23-ii-dow-by-cls-fact-calc-module"></span><h2>vmtmix_fy23.ii_dow_by_cls_fact_calc module<a class="headerlink" href="#module-vmtmix_fy23.ii_dow_by_cls_fact_calc" title="Permalink to this heading">¶</a></h2>
+<p>Use TxDOT Perm counter data to get DOW factors by different vehicle category.
+Use the formula used by Tao to be f_d,m ATR factor to get this factor by different
+vehicle categories.
+Created by: Apoorb
+Created/ Modified on: 02/14/2023</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.ii_dow_by_cls_fact_calc.conv_aadt_adt_mnth_dow_by_vehcat">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.ii_dow_by_cls_fact_calc.</span></span><span class="sig-name descname"><span class="pre">conv_aadt_adt_mnth_dow_by_vehcat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_yr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2013</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_yr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2019</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.ii_dow_by_cls_fact_calc.conv_aadt_adt_mnth_dow_by_vehcat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert AADT To monthly DOW ADT.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.ii_dow_by_cls_fact_calc.dow_by_cls_fac">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.ii_dow_by_cls_fact_calc.</span></span><span class="sig-name descname"><span class="pre">dow_by_cls_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_yr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_yr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.ii_dow_by_cls_fact_calc.dow_by_cls_fac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create DOW by veh class factors that will be applied to the AADT from ATR data
+by vehicle class.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.ii_dow_by_cls_fact_calc.fun_region_episode">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.ii_dow_by_cls_fact_calc.</span></span><span class="sig-name descname"><span class="pre">fun_region_episode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atr_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">episode_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region_cat_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.ii_dow_by_cls_fact_calc.fun_region_episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to calculate the adt of a given region (region_cat_name, e.g. district,
+MPO) and episode (episode_index, e.g., weekend, summer) the region_cat_name should
+a field in the df atr_data, episode_index is a column of logical variable whose
+length is the same as df atr_data</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.ii_dow_by_cls_fact_calc.unique_datetimes_test">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.ii_dow_by_cls_fact_calc.</span></span><span class="sig-name descname"><span class="pre">unique_datetimes_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm_countr_fil_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.ii_dow_by_cls_fact_calc.unique_datetimes_test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.ii_dow_by_cls_fact_calc.year_range_test">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.ii_dow_by_cls_fact_calc.</span></span><span class="sig-name descname"><span class="pre">year_range_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm_countr_fil_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.ii_dow_by_cls_fact_calc.year_range_test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23.iii_adt_to_aadt_fac">
+<span id="vmtmix-fy23-iii-adt-to-aadt-fac-module"></span><h2>vmtmix_fy23.iii_adt_to_aadt_fac module<a class="headerlink" href="#module-vmtmix_fy23.iii_adt_to_aadt_fac" title="Permalink to this heading">¶</a></h2>
+<p>Use ATR factors from Tao’s work. Following is modified Tao’s code.
+Created by: Tao
+Modified by: Apoorb</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.iii_adt_to_aadt_fac.conv_aadt_adt_mnth_dow">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iii_adt_to_aadt_fac.</span></span><span class="sig-name descname"><span class="pre">conv_aadt_adt_mnth_dow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_yr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2013</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_yr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2019</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iii_adt_to_aadt_fac.conv_aadt_adt_mnth_dow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert AADT To monthly DOW ADT.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.iii_adt_to_aadt_fac.fun_region_episode">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iii_adt_to_aadt_fac.</span></span><span class="sig-name descname"><span class="pre">fun_region_episode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atr_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">episode_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region_cat_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iii_adt_to_aadt_fac.fun_region_episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to calculate the adt of a given region (region_cat_name, e.g. district,
+MPO) and episode (episode_index, e.g., weekend, summer) the region_cat_name should
+a field in the df atr_data, episode_index is a column of logical variable whose
+length is the same as df atr_data
+:param atr_data:
+:param episode_index:
+:param region_cat_name:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.iii_adt_to_aadt_fac.mth_dow_fac">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iii_adt_to_aadt_fac.</span></span><span class="sig-name descname"><span class="pre">mth_dow_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_yr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_yr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iii_adt_to_aadt_fac.mth_dow_fac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create DOW + Month Factors to convert the ADT data in the MVC to AADT data. These
+are not by vehicle class and computed from the expanded ATR data without vehicle
+class information.</p>
+</dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23.iv_mvc_hpms_counts">
+<span id="vmtmix-fy23-iv-mvc-hpms-counts-module"></span><h2>vmtmix_fy23.iv_mvc_hpms_counts module<a class="headerlink" href="#module-vmtmix_fy23.iv_mvc_hpms_counts" title="Permalink to this heading">¶</a></h2>
+<p>Get FHWA VMT Mix from Card 4.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iv_mvc_hpms_counts.</span></span><span class="sig-name descname"><span class="pre">MVCVmtMix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_inp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">WindowsPath('E:/Texas</span> <span class="pre">A&amp;M</span> <span class="pre">Transportation</span> <span class="pre">Institute/TxDOT_TPP_Projects</span> <span class="pre">-</span> <span class="pre">Task</span> <span class="pre">5.3</span> <span class="pre">Activity</span> <span class="pre">Forecasting</span> <span class="pre">Factors/Data/input')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_interm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">WindowsPath('E:/Texas</span> <span class="pre">A&amp;M</span> <span class="pre">Transportation</span> <span class="pre">Institute/TxDOT_TPP_Projects</span> <span class="pre">-</span> <span class="pre">Task</span> <span class="pre">5.3</span> <span class="pre">Activity</span> <span class="pre">Forecasting</span> <span class="pre">Factors/Data/intermediate')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_yr_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2013</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_yr_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2019</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.agg_mvc_counts">
+<span class="sig-name descname"><span class="pre">agg_mvc_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spatial_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'district'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.agg_mvc_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate (average) the counts to <cite>spatial_level</cite> (district or district group), road type, and hour.
+Convert the count to AADT before aggregating.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.agg_vtype_cols">
+<span class="sig-name descname"><span class="pre">agg_vtype_cols</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['MC',</span> <span class="pre">'PC',</span> <span class="pre">'PT_LCT',</span> <span class="pre">'Bus',</span> <span class="pre">'SU_MH_RT_HDV',</span> <span class="pre">'CT_HDV']</span></em><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.agg_vtype_cols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.filt_mvc_counts">
+<span class="sig-name descname"><span class="pre">filt_mvc_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.filt_mvc_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter MVC counts to</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.get_mvc_sample_size">
+<span class="sig-name descname"><span class="pre">get_mvc_sample_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spatial_level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.get_mvc_sample_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sample size (# of counters) per <cite>spatial_level</cite>, road type, and
+hour.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.map_ra">
+<span class="sig-name descname"><span class="pre">map_ra</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{2:</span> <span class="pre">'r_ra',</span> <span class="pre">3:</span> <span class="pre">'r_ura',</span> <span class="pre">4:</span> <span class="pre">'u_ra',</span> <span class="pre">5:</span> <span class="pre">'u_ura',</span> <span class="pre">'ALL':</span> <span class="pre">'ALL'}</span></em><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.map_ra" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_conv_aadt2dow_by_vehcat">
+<span class="sig-name descname"><span class="pre">set_conv_aadt2dow_by_vehcat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_conv_aadt2dow_by_vehcat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the AADT to DOW factor by vehicle category.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_conv_aadt_adt_mnth">
+<span class="sig-name descname"><span class="pre">set_conv_aadt_adt_mnth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_conv_aadt_adt_mnth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the AADT to ADT by month and day of the week conversion factor. We
+will be using the inverse of this factor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_mvc">
+<span class="sig-name descname"><span class="pre">set_mvc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_mvc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the manual vehicle count parquet file into a pandas dataframe. Extract date
+tim parameters such as year, hour, month, dow. Filter the data to be between the
+min_yr and max_yr years. For FY22 the min_yr was 2013 and max_yr was 2019. Drop
+the rows where the MVC doesn’t have road type info. Create a copy of MVC data
+and assign road, area, and access type as “ALL”. Map the data to MOVES road types.
+Create new columns to represent counts by HPMS vehicle categories.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_txdist">
+<span class="sig-name descname"><span class="pre">set_txdist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.set_txdist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read TxDOT district shapefile.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.vehclscntcols">
+<span class="sig-name descname"><span class="pre">vehclscntcols</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'class1':</span> <span class="pre">'MC',</span> <span class="pre">'class10':</span> <span class="pre">'CT_HDV',</span> <span class="pre">'class11':</span> <span class="pre">'CT_HDV',</span> <span class="pre">'class12':</span> <span class="pre">'CT_HDV',</span> <span class="pre">'class13':</span> <span class="pre">'CT_HDV',</span> <span class="pre">'class14':</span> <span class="pre">'Unk',</span> <span class="pre">'class15':</span> <span class="pre">'Unk',</span> <span class="pre">'class2':</span> <span class="pre">'PC',</span> <span class="pre">'class3':</span> <span class="pre">'PT_LCT',</span> <span class="pre">'class4':</span> <span class="pre">'Bus',</span> <span class="pre">'class5':</span> <span class="pre">'SU_MH_RT_HDV',</span> <span class="pre">'class6':</span> <span class="pre">'SU_MH_RT_HDV',</span> <span class="pre">'class7':</span> <span class="pre">'SU_MH_RT_HDV',</span> <span class="pre">'class8':</span> <span class="pre">'CT_HDV',</span> <span class="pre">'class9':</span> <span class="pre">'CT_HDV'}</span></em><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix.vehclscntcols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.compute_vmtmix_dow">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iv_mvc_hpms_counts.</span></span><span class="sig-name descname"><span class="pre">compute_vmtmix_dow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_agg_dist_imputed_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvcvmtmix_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.compute_vmtmix_dow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the vehicle miles traveled (VMT) surrogate (counts-based) distribution by
+day of week and vehicle category for each district + road type group using the MVC
+counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mvc_agg_dist_imputed</strong> (<em>pandas.DataFrame</em>) – A DataFrame containing the imputed MVC counts at the district and road type level.
+Must contain the columns ‘district’, ‘mvs_rdtype_nm’, ‘hour’, ‘based_on_dg’,
+‘MC_adt’, ‘PC_adt’, ‘PT_LCT_adt’, ‘Bus_adt’, ‘SU_MH_RT_HDV_adt’, and ‘CT_HDV_adt’.</p></li>
+<li><p><strong>mvcvmtmix</strong> (<a class="reference internal" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix" title="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix"><em>MVCVmtMix</em></a>) – A <cite>MVCVmtMix</cite> object containing data and functions to compute counts by
+day of week and vehicle category.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing the counts by day of week and vehicle category for each
+district + road type group. The DataFrame has the columns ‘dgcode’, ‘district’,
+‘based_on_dg’, ‘mvs_rdtype_nm’, ‘mvs_rdtype’, ‘dowagg’, ‘hour’, ‘MC_dow’, ‘PC_dow’,
+‘PT_LCT_dow’, ‘Bus_dow’, ‘SU_MH_RT_HDV_dow’, ‘CT_HDV_dow’, ‘Total_dow’, ‘MC_frac’,
+‘PC_frac’, ‘PT_LCT_frac’, ‘Bus_frac’, ‘SU_MH_RT_HDV_frac’, and ‘CT_HDV_frac’,
+representing the district group code, district identifier, Boolean flag indicating
+whether the imputation is based on district groups, road type group, road type code,
+day of week, hour of the day, counts  by day of week and vehicle category, total
+VMT by day of week, and count (VMT) fraction by day of week and vehicle category.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.get_min_ss_per_loc">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iv_mvc_hpms_counts.</span></span><span class="sig-name descname"><span class="pre">get_min_ss_per_loc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvcvmtmix_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_level_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.get_min_ss_per_loc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <cite>spatial_rdtyp_lng</cite> dataframe of all combinations of districts or district
+groups and road types. Call <cite>get_mvc_sample_size</cite> to get the sample size. Check
+if there are at least 5 counters available for each analysis group: <cite>spatial_level_</cite>,
+road type, and hour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.handle_low_district_ss">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iv_mvc_hpms_counts.</span></span><span class="sig-name descname"><span class="pre">handle_low_district_ss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_district_sta_counts_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvcvmtmix_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.handle_low_district_ss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Impute missing counts for district + road type groups that have less than 5 stations
+by aggregating the counts of district groups + road types that have at least 5 stations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_district_sta_counts</strong> (<em>pandas.DataFrame</em>) – A DataFrame containing station count information at the district and road type level.
+Must contain the columns ‘district’, ‘mvs_rdtype_nm’, and ‘min_avg_sta_count’.</p></li>
+<li><p><strong>mvcvmtmix</strong> (<a class="reference internal" href="#vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix" title="vmtmix_fy23.iv_mvc_hpms_counts.MVCVmtMix"><em>MVCVmtMix</em></a>) – A <cite>MVCVmtMix</cite> object containing data and function to compute MVC counts at the
+district and/or district group level.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing imputed  counts at the district and road type level.
+The DataFrame has the columns ‘district’, ‘mvs_rdtype_nm’, ‘hour’, ‘based_on_dg’,
+‘MC_adt’, ‘PC_adt’, ‘PT_LCT_adt’, ‘Bus_adt’, ‘SU_MH_RT_HDV_adt’, and
+‘CT_HDV_adt’, representing the district identifier, the road type group, the
+hour of the day, a Boolean flag indicating whether the imputation is based on
+district groups, and the MVC counts for the district and road type group.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If the resulting DataFrame does not have the expected number of rows or if there is
+    more than one count for the “district”, “mvs_rdtype_nm”, “hour” group.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.iv_mvc_hpms_counts.mvc_hpms_cnt">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.iv_mvc_hpms_counts.</span></span><span class="sig-name descname"><span class="pre">mvc_hpms_cnt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_yr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_yr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.iv_mvc_hpms_counts.mvc_hpms_cnt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the HPMS category counts from the MVC data and apply the above conversion
+factors.</p>
+</dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23.utils">
+<span id="vmtmix-fy23-utils-module"></span><h2>vmtmix_fy23.utils module<a class="headerlink" href="#module-vmtmix_fy23.utils" title="Permalink to this heading">¶</a></h2>
+<p>Common functions that will be used by all modules.
+Created by: Apoorba Bibeka
+Crated on: 2/6/2023</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="vmtmix_fy23.utils.ChainedAssignent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.utils.</span></span><span class="sig-name descname"><span class="pre">ChainedAssignent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.utils.ChainedAssignent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class ChainedAssignment is used to control the behavior of chained assignment
+in pandas. It can be used as a context manager to temporarily change the
+chained_assignment option in pandas and then revert to the original value when
+the context is exited.</p>
+<p>chained: A string that specifies the behavior of chained assignment. Acceptable
+values are None, “warn”, and “raise”. If None, no warning or exception will be
+raised when a chained assignment is encountered. If “warn”, a warning will be raised.
+If “raise”, an exception will be raised.</p>
+<p>saved_swcw: A variable that stores the original value of the chained_assignment
+option in pandas.</p>
+<p>The __enter__ method sets the chained_assignment option to the value specified by
+the chained argument and returns the context manager instance.</p>
+<p>The __exit__ method sets the chained_assignment option back to the value stored in
+saved_swcw.</p>
+<p>This class allows for a more convenient and readable way to control the behavior of
+chained assignment in pandas, compared to setting and resetting the option manually
+in separate statements.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.utils.connect_to_server_db">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.utils.</span></span><span class="sig-name descname"><span class="pre">connect_to_server_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_nm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_nm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'moves'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3308</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.utils.connect_to_server_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to connect to a particular database on the server.
+:returns: <strong>conn_</strong> – Connection object to access the data in MariaDB Server.
+:rtype: mariadb.connection</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.utils.create_sut_fueltype_map">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.utils.</span></span><span class="sig-name descname"><span class="pre">create_sut_fueltype_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.utils.create_sut_fueltype_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Mapping for SUT type and Fuel type. 23 combination.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.utils.get_engine_to_output_to_db">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.utils.</span></span><span class="sig-name descname"><span class="pre">get_engine_to_output_to_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.utils.get_engine_to_output_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get engine to output data to out_database using pd.to_sql().</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.utils.get_snake_case_dict">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.utils.</span></span><span class="sig-name descname"><span class="pre">get_snake_case_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.utils.get_snake_case_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get columns in snake_case.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.utils.timing">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.utils.</span></span><span class="sig-name descname"><span class="pre">timing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.utils.timing" title="Permalink to this definition">¶</a></dt>
+<dd><p>timing(f) is a decorator that measures and prints execution time of a function <cite>f</cite>.
+It takes a function as an argument and returns a wrapped version with timing
+functionality.</p>
+</dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23.v_SU_CT_sh_lh_dist">
+<span id="vmtmix-fy23-v-su-ct-sh-lh-dist-module"></span><h2>vmtmix_fy23.v_SU_CT_sh_lh_dist module<a class="headerlink" href="#module-vmtmix_fy23.v_SU_CT_sh_lh_dist" title="Permalink to this heading">¶</a></h2>
+<p>Get short-haul vs. long-haul distribution from the FAF4 Network Assignment data for
+Texas.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.v_SU_CT_sh_lh_dist.</span></span><span class="sig-name descname"><span class="pre">TrucksDist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_faf_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_inp_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Get VMT distribution between long-haul and short-haul for combination trucks (CT)
+and single unit trucks (SU)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.compute_vmt_dist">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_vmt_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ass_faf4_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erg_crc_a88_vius2002_SULhT_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.103</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.compute_vmt_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static method, so does not have an instance of the class (self) in it.</p>
+<p>faf12 - Year 2012 FAF long distance truck volume estimated based on the FAF 4 Origin-Destination truck tonnage and includes empty trucks. Volume/day/section.
+nonfaf12 - Year 2012 Local truck traffic that is not part of FAF 4 O-D database. Volume/day/section
+su_aadt12 - Single Unit Truck Traffic year 2012
+comb_aadt1 - Combination Unit Truck Traffic year 2012</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ass_faf4</strong> (<em>Combined FAF4 assignment and metadata.</em>) – </p></li>
+<li><p><strong>erg_crc_a88_vius2002_SULhT_pct</strong> (<em>Single Unit Long Haul</em><em> (</em><em>SULhT</em><em>) </em><em>vs. Long Haul</em><em> (</em><em>Lh</em><em>)</em>) – </p></li>
+<li><p><strong>survey.</strong> (<em>trucks fraction based on the VIUS 2002</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pd.DataFrame</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>distribution of the CLhT, CShT, SULhT, and SUShT.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.get_vmt_dist">
+<span class="sig-name descname"><span class="pre">get_vmt_dist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.get_vmt_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the distribution of the CLhT, CShT, SULhT, and SUShT by district and at
+statewide level. There are missing values at district level, so we
+are using the statewide values in the analysis. Following are
+keys processing steps of this function:</p>
+<ul class="simple">
+<li><p>Create <cite>ass_faf4_tx_distr</cite> and <cite>ass_faf4_tx_state</cite> by merging FAF4 metadata and assignment data.</p></li>
+<li><p><cite>ass_faf4_tx_state</cite> is used for statewide distribution, thus we overwrite all the <cite>txdot_dist</cite> values with 0.</p></li>
+<li><p>Call <cite>compute_vmt_dist</cite> to compute the distribution of the CLhT, CShT, SULhT, and SUShT.</p></li>
+<li><p><cite>vmt_dist_tx</cite> can be directly used. <cite>vmt_dist_tx_distr</cite> have missing values, so we merge with other datasets to help identify discrepencies.</p></li>
+<li><p><cite>vmt_dist_tx_distr</cite> is not used.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self</strong> (<em>object</em>) – Instance of <cite>TrucksDist</cite> class.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>vmt_dist_tx has the distribution of the CLhT, CShT, SULhT, and SUShT at statewide level.
+vmt_dist_txdist has the distribution of the CLhT, CShT, SULhT, and SUShT at by district.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[pd.DataFrame, pd.DataFrame]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.prc_meta_faf4">
+<span class="sig-name descname"><span class="pre">prc_meta_faf4</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.prc_meta_faf4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the FAF4 metadata that has route information. We already filtered the
+FAF4 metadata to keep Texas only data in the <cite>read_data</cite> function. Following are
+keys processing steps of this function:
+- Assign county FIPS to the FAF4 metadata and the assignment data.
+- FAF metadata: Filter the data to just keep faf4 ID, road type, area type, county FIPS. FAF4 ID links metadata with assignment data.
+- FAF metadata: Check for percent of rows with missing functional class or area code.
+- FAF metadata: Filter out the rows with missing functional class and area codes.
+- FAF metadata: Map MOVES road types to the FAF4 area and road type codes.
+- FAF metadata: Add district column by merging with county shapefile.
+- Filter out the data for districts where we only have 50 miles of total route miles.
+:param self: Instance of <cite>TrucksDist</cite> class.
+:type self: object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.read_data">
+<span class="sig-name descname"><span class="pre">read_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.v_SU_CT_sh_lh_dist.TrucksDist.read_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read FAF4 assignment and metadata, county geodata, and urbanized area
+geodata. Filter the FAF metadata to only keep Texas data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.v_SU_CT_sh_lh_dist.faf4_su_ct_lh_sh_pct">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.v_SU_CT_sh_lh_dist.</span></span><span class="sig-name descname"><span class="pre">faf4_su_ct_lh_sh_pct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_fi</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.v_SU_CT_sh_lh_dist.faf4_su_ct_lh_sh_pct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the SU and CT, Sh and Lh splits from FAF4 assignment and metadata using
+ERG methodology and VIUS 2002 factor.</p>
+</dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23.vi_sut_nd_fuel_mix">
+<span id="vmtmix-fy23-vi-sut-nd-fuel-mix-module"></span><h2>vmtmix_fy23.vi_sut_nd_fuel_mix module<a class="headerlink" href="#module-vmtmix_fy23.vi_sut_nd_fuel_mix" title="Permalink to this heading">¶</a></h2>
+<dl class="simple">
+<dt>Use the following data to impute missing data</dt><dd><p>MVS303 default runs
+MVS 3 samplevehiclepopulation and sourcetypeagedistribution distribution data
+2018 vehicle registration data.</p>
+</dd>
+</dl>
+<p>Created by: Apoorb
+Created on: 02/14/2022</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303defaultsutdist">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vi_sut_nd_fuel_mix.</span></span><span class="sig-name descname"><span class="pre">get_mvs303defaultsutdist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303defaultsutdist" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>mvs303_1990_2000to2060_splits_out</cite> is the output database based on default MOVES run
+for Texas for 1990 and between 2000 and 2060. Read the activity from this database.
+<cite>movesdb20220105</cite> is the default MOVES database, read the SUT and HPMS vehicle type
+code and description from this table. Sum-up the activity ID 1 (VMT) by HPMS. Create
+a modified set of SUTs, sum-up the activity by the modified set of SUTs. Get the
+distribution of SUTs within the modified HPMS parent category. Do the  above for
+no-road (population) also.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303fueldist">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vi_sut_nd_fuel_mix.</span></span><span class="sig-name descname"><span class="pre">get_mvs303fueldist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anlyr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1990,</span> <span class="pre">2000,</span> <span class="pre">2005,</span> <span class="pre">2010,</span> <span class="pre">2015,</span> <span class="pre">2020,</span> <span class="pre">2025,</span> <span class="pre">2030,</span> <span class="pre">2035,</span> <span class="pre">2040,</span> <span class="pre">2045,</span> <span class="pre">2050,</span> <span class="pre">2055,</span> <span class="pre">2060]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303fueldist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read default MOVES fuel type distribution by model year from 1960 to 2060.
+Read default MOVES age distribution for the analysis years.
+Merge the two and get a age weighted distribution of fuel type for the analysis year.
+Re-normalized the age weighed fuel type distribution to just two fuel types: gasoline and diesel.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303samvehpop">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vi_sut_nd_fuel_mix.</span></span><span class="sig-name descname"><span class="pre">get_mvs303samvehpop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303samvehpop" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Retrieves the aggregated sample vehicle population data from the samplevehiclepopulation</dt><dd><p>table in the movesdb20220105 database, and returns it as pandas DataFrame. The
+returned DataFrame contains the sum of stmyFraction values rouped by
+‘sourceTypeID’, ‘modelYearID’, and ‘fuelTypeID’.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A DataFrame containing the aggregated sample vehicle population data with the
+following columns:
+‘sourceTypeID’, ‘modelYearID’, ‘fuelTypeID’, and ‘stmyFraction’.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303souagedist">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vi_sut_nd_fuel_mix.</span></span><span class="sig-name descname"><span class="pre">get_mvs303souagedist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anlyr_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#vmtmix_fy23.vi_sut_nd_fuel_mix.get_mvs303souagedist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the source type age distribution data from the ‘sourcetypeagedistribution’ table in the
+‘movesdb20220105’ database for the specified year(s), and returns it as a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>anlyr</strong> (<em>list</em>) – A list of integer values representing the year(s) for which to retrieve the source type age distribution
+data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing the source type age distribution data for the specified year(s).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vi_sut_nd_fuel_mix.mvs_sut_nd_fuel_mx">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vi_sut_nd_fuel_mix.</span></span><span class="sig-name descname"><span class="pre">mvs_sut_nd_fuel_mx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fueldist_outfi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sut_hpms_dist_outfi</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vi_sut_nd_fuel_mix.mvs_sut_nd_fuel_mx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the SUT dist within HPMS and the fuel dist from MOVES default database.</p>
+</dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23.vii_vmt_mix_disagg">
+<span id="vmtmix-fy23-vii-vmt-mix-disagg-module"></span><h2>vmtmix_fy23.vii_vmt_mix_disagg module<a class="headerlink" href="#module-vmtmix_fy23.vii_vmt_mix_disagg" title="Permalink to this heading">¶</a></h2>
+<p>Use FAF and MOVES national level run VMT Mix to get the dissagregated VMT-Mix</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.add_yr_mod_cols_mvc">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">add_yr_mod_cols_mvc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_vmtmix_long_filt_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvs303defaultsutdist_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.add_yr_mod_cols_mvc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add analysis year column to the MVC data that does not have year column for
+the vehicle types that were not merged with national default data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.apply_faf4_fac">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">apply_faf4_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_su_ct_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faf4_fac_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.apply_faf4_fac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge the MVC data for SU and CT with the FAF4-based factors to split the SU and CT
+MVC counts to SUShT, SULhT, CShT, and CLhT.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.apply_fuel_dist">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">apply_fuel_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_suts_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvs303fueldist_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.apply_fuel_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <cite>mvs303fueldist_</cite> fuel type distribution from default MOVES run to the
+MVC counts by SUT dataframe obtained from the <cite>concat_suts</cite> function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.concat_suts">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">concat_suts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_mc_pc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvc_sut_pt_lct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvc_sut_ob_sb_tb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvc_modsut_rt_mh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvc_su_ct_sut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.concat_suts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concat the split-out SUT counts from different groups of SUTs to obtain a unified
+dataframe. Add some descriptive columns to this dataframe.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.fac_sutdist_natdef">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">fac_sutdist_natdef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvc_vtype_cat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mvs303defaultsutdist_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modhpmsvehcat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.fac_sutdist_natdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>The initial part of the code filters out the MVC data to just keep the HPMS vehicle
+categories specified in the <cite>mvc_vtype_cat</cite> dict. We filter <cite>mvs303defaultsutdist_</cite> to
+the corresponding modified vehicle category to the HPMS vehicle category specified in
+<cite>mvc_vtype_cat</cite> dict and create a mapping between the two, that is used for merging.
+We merge the two dataframe and apply the default MOVES SUT splits to the MVC data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mvc</strong> – </p></li>
+<li><p><strong>mvc_vtype_cat</strong> (<em>dict</em>) – MVC vehicle type column name and the value of interest.
+{‘mvc_vtype_cat’: ‘PT_LCT’}
+{‘mvc_vtype_cat’: ‘Bus’}
+{‘mvc_vtype_cat’: ‘SU_MH_RT_HDV’}</p></li>
+<li><p><strong>mvs303defaultsutdist</strong> (<em>pd.DataFrame</em>) – Distribution of SUTs within the modified HPMS parent category. This dataframe
+is filterd to <cite>modhpmsvehcat</cite> value. For instance for
+{‘modhpms_vtype_name’: ‘PT_LCT’}, we are filter this dataframe to ‘PT_LCT’</p></li>
+<li><p><strong>modhpmsvehcat</strong> (<em>dict</em>) – MOVES modified HPMS vehicle type column name and the value of interest. We map
+the mvc_vtype_cat names to the values specified in this dict. So, “PT_LCT” maps
+to “PT_LCT”.
+{‘modhpms_vtype_name’: ‘PT_LCT’}
+{‘modhpms_vtype_name’: ‘Buses’}
+{‘modhpms_vtype_name’: ‘SU_MH_RT_HDV’}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.filt_to_tod">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">filt_to_tod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_suts_ftype_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tod_map_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txdist_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.filt_to_tod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the values from <cite>apply_fuel_dist</cite> to different TOD hours and normalize the
+counts to get the Count distribution or the “VMT-Mix”.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.fin_vmt_mix">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">fin_vmt_mix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_file_nm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fin_vmtmix'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.fin_vmt_mix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
+and normalize the final counts to get the SUT-FT dist.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.prc_faf4_fac">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">prc_faf4_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">faf4_su_ct_lh_sh_pct_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.prc_faf4_fac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process FAF4 data-based factors by SU (Single Unit) and CT (Combination Truck).
+Connect FAF4 data-based factors with the MVC (Manual vehicle count) data columns and
+fields. Change the mapping to allow for merging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>faf4_su_ct_lh_sh_pct</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame containing FAF4 data-based factors by SU and CT.
+It should have the following columns:
+- mvs_rdtype: str
+- pct_CLhT_vs_CT: float
+- pct_CShT_vs_CT: float
+- pct_SULhT_vs_SU: float
+- pct_SUShT_vs_SU: float</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A pandas DataFrame containing the filtered and mapped factors.
+It has the following columns:
+- mvs_rdtype: str
+- modsutname: str
+- sourceTypeName: str
+- su_ct_sh_lh_pcts: float</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vmtmix_fy23.vii_vmt_mix_disagg.prc_mvc">
+<span class="sig-prename descclassname"><span class="pre">vmtmix_fy23.vii_vmt_mix_disagg.</span></span><span class="sig-name descname"><span class="pre">prc_mvc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvc_vmtmix_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtmix_fy23.vii_vmt_mix_disagg.prc_mvc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform MVC data into long format.</p>
+</dd></dl>
+
+</section>
+<section id="module-vmtmix_fy23">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-vmtmix_fy23" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">VMT-Mix Dev</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">vmtmix_fy23</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">vmtmix_fy23 package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">vmtmix_fy23</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">vmtmix_fy23</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Apoorb.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/vmtmix_fy23.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

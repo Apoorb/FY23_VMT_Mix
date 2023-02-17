@@ -43,7 +43,7 @@ def main():
     )
     # Appy the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
     # and normalize the final counts to get the SUT-FT dist.
-    vii_vmt_mix_disagg.fin_vmt_mix(out_file_nm="fy23_fin_vmtmix_13_19")
+    vii_vmt_mix_disagg.fin_vmt_mix(out_file_nm="fy23_fin_vmtmix_13_20")
 
 
 if __name__ == "__main__":

@@ -97,6 +97,7 @@ def clean_mvc_countr(mvc_file):
     - The 'end_date' column is converted to datetime format with format="%m/%d/%Y".
     - The 'start_datetime' column is created by combining 'start_date' and 'start_time' columns and converted to datetime format with format="%m/%d/%Y %I:%M:%S %p".
     - The 'location_id' column is created by combining values from the 'station_id', 'pre_dir', 'street', 'suf_dir', and 'cmb_dir' columns using the function 'get_sta_pre_id_suf_cmb'.
+
     Parameters
     ----------
     mvc_file: str
@@ -134,6 +135,7 @@ def clean_mvc_countr(mvc_file):
 
 
 def add_mvs_rdtype_to_mvc_new(mvc_countr_new_):
+    """Add MOVES road type to the MVC data."""
     mvc_countr_new_ = mvc_countr_new_.assign(
         func_class=lambda df: df.func_class.astype(int),
         mvs_rdtype=lambda df: np.select(
@@ -151,6 +153,7 @@ def add_mvs_rdtype_to_mvc_new(mvc_countr_new_):
 
 
 def add_mvs_rdtype_to_perm(perm_countr_):
+    """Add MOVES road type to the ATR data."""
     perm_countr_ = perm_countr_.rename(
         columns={"functional_class": "func_class"}
     ).assign(
@@ -214,6 +217,10 @@ def raw_dt_prc(
         MVC_file="MVC_2013_21_received_on_030922",
         PERM_file="PERM_CLASS_BY_HR_2013_2021"
 ):
+    """
+    Process the raw MVC and permanent counter data to fix date time format, station id,
+    map road types to MOVES, and save data to parquet for faster loading.
+    """
     # Set Paths
     # ----------------------------------------------------------------------------------
     path_perm_countr_pq = Path.joinpath(

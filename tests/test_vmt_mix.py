@@ -5,7 +5,7 @@
 import pandas as pd
 
 
-def test_code_produce_same_vmt_mix_as_042023():
+def test_code_produce_same_vmt_mix_as_fy22():
     p_apr22_vmt_mix = (
         r"E:\Texas A&M Transportation Institute"
         r"\TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors (1)"

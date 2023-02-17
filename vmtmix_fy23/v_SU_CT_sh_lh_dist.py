@@ -16,7 +16,6 @@ from vmtmix_fy23.utils import (
     get_snake_case_dict,
     path_inp,
     path_interm,
-    path_tx_hpms_2018,
     path_faf,
     path_county_shp,
 )
@@ -386,6 +385,10 @@ class TrucksDist:
 
 @timing
 def faf4_su_ct_lh_sh_pct(out_fi):
+    """
+    Get the SU and CT, Sh and Lh splits from FAF4 assignment and metadata using
+    ERG methodology and VIUS 2002 factor.
+    """
     truckdist = TrucksDist(
         path_faf_=path_faf, path_inp_=path_inp
     )

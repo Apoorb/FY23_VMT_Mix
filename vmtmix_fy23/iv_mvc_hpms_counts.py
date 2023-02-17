@@ -262,6 +262,7 @@ def handle_low_district_ss(all_district_sta_counts_, mvcvmtmix_):
     """
     Impute missing counts for district + road type groups that have less than 5 stations
     by aggregating the counts of district groups + road types that have at least 5 stations.
+
     Parameters
     ----------
     all_district_sta_counts_ : pandas.DataFrame
@@ -419,6 +420,10 @@ def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
 
 @timing
 def mvc_hpms_cnt(out_fi, min_yr, max_yr):
+    """
+    Compute the HPMS category counts from the MVC data and apply the above conversion
+    factors.
+    """
     now_yr = str(datetime.datetime.now().year)
     now_mnt = str(datetime.datetime.now().month).zfill(2)
     now_mntyr = now_mnt + now_yr
