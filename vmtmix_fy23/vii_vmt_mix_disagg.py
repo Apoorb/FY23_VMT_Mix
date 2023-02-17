@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from itertools import chain
 import geopandas as gpd
 import os
 import sys
@@ -21,6 +22,9 @@ switchoff_chainedass_warn = ChainedAssignent()
 
 
 def prc_mvc(mvc_vmtmix_):
+    """
+    Transform MVC data into long format.
+    """
     mvc_vmtmix_long_ = mvc_vmtmix_.melt(
         id_vars=[
             "dgcode",
@@ -50,7 +54,8 @@ def prc_mvc(mvc_vmtmix_):
 
 
 def add_yr_mod_cols_mvc(mvc_vmtmix_long_filt_, mvs303defaultsutdist_):
-    """Process the mvc vehicle types that were not merged with national default data."""
+    """Add analysis year column to the MVC data that does not have year column for
+     the vehicle types that were not merged with national default data."""
     yearIDs = [
         1990,
         2000,
@@ -94,8 +99,33 @@ def add_yr_mod_cols_mvc(mvc_vmtmix_long_filt_, mvs303defaultsutdist_):
     return mvc_vmtmix_long_filt_2_
 
 
-def prc_faf4_fac(faf4_su_ct_lh_sh_pct_):
-    """Give factors back by SU and CT"""
+def prc_faf4_fac(faf4_su_ct_lh_sh_pct_: pd.DataFrame) -> pd.DataFrame:
+    """
+    Process FAF4 data-based factors by SU (Single Unit) and CT (Combination Truck).
+    Connect FAF4 data-based factors with the MVC (Manual vehicle count) data columns and
+    fields. Change the mapping to allow for merging.
+
+    Parameters
+    ----------
+    faf4_su_ct_lh_sh_pct_ : pd.DataFrame
+        A pandas DataFrame containing FAF4 data-based factors by SU and CT.
+        It should have the following columns:
+        - mvs_rdtype: str
+        - pct_CLhT_vs_CT: float
+        - pct_CShT_vs_CT: float
+        - pct_SULhT_vs_SU: float
+        - pct_SUShT_vs_SU: float
+
+    Returns
+    -------
+    pd.DataFrame
+        A pandas DataFrame containing the filtered and mapped factors.
+        It has the following columns:
+        - mvs_rdtype: str
+        - modsutname: str
+        - sourceTypeName: str
+        - su_ct_sh_lh_pcts: float
+    """
     faf4_su_ct_lh_sh_pct_long_ = faf4_su_ct_lh_sh_pct_.melt(
         id_vars=["mvs_rdtype"],
         value_vars=[
@@ -143,7 +173,38 @@ def prc_faf4_fac(faf4_su_ct_lh_sh_pct_):
     return faf4_filt
 
 
-def fac_natdef(mvc_, mvc_vtype_cat, mvs303defaultsutdist_, modhpmsvehcat):
+def fac_sutdist_natdef(mvc_: pd.DataFrame, mvc_vtype_cat: dict,
+                       mvs303defaultsutdist_: dict, modhpmsvehcat: dict):
+    """
+    The initial part of the code filters out the MVC data to just keep the HPMS vehicle
+    categories specified in the `mvc_vtype_cat` dict. We filter `mvs303defaultsutdist_` to
+    the corresponding modified vehicle category to the HPMS vehicle category specified in
+    `mvc_vtype_cat` dict and create a mapping between the two, that is used for merging.
+    We merge the two dataframe and apply the default MOVES SUT splits to the MVC data.
+    Parameters
+    ----------
+    mvc_
+    mvc_vtype_cat: dict
+        MVC vehicle type column name and the value of interest.
+        {'mvc_vtype_cat': 'PT_LCT'}
+        {'mvc_vtype_cat': 'Bus'}
+        {'mvc_vtype_cat': 'SU_MH_RT_HDV'}
+    mvs303defaultsutdist_: pd.DataFrame
+        Distribution of SUTs within the modified HPMS parent category. This dataframe
+        is filterd to `modhpmsvehcat` value. For instance for
+        {'modhpms_vtype_name': 'PT_LCT'}, we are filter this dataframe to 'PT_LCT'
+    modhpmsvehcat: dict
+        MOVES modified HPMS vehicle type column name and the value of interest. We map
+        the mvc_vtype_cat names to the values specified in this dict. So, "PT_LCT" maps
+        to "PT_LCT".
+        {'modhpms_vtype_name': 'PT_LCT'}
+        {'modhpms_vtype_name': 'Buses'}
+        {'modhpms_vtype_name': 'SU_MH_RT_HDV'}
+
+    Returns
+    -------
+
+    """
     filt_mvc = (
         lambda df: df[list(mvc_vtype_cat.keys())[0]] == list(mvc_vtype_cat.values())[0]
     )
@@ -197,6 +258,10 @@ def fac_natdef(mvc_, mvc_vtype_cat, mvs303defaultsutdist_, modhpmsvehcat):
 
 
 def apply_faf4_fac(mvc_su_ct_, faf4_fac_):
+    """
+    Merge the MVC data for SU and CT with the FAF4-based factors to split the SU and CT
+    MVC counts to SUShT, SULhT, CShT, and CLhT.
+    """
     fix_dtype = {
         float_: int_
         for float_, int_ in zip(
@@ -234,6 +299,11 @@ def apply_faf4_fac(mvc_su_ct_, faf4_fac_):
 def concat_suts(
     mvc_mc_pc, mvc_sut_pt_lct, mvc_sut_ob_sb_tb, mvc_modsut_rt_mh, mvc_su_ct_sut
 ):
+    """
+    Concat the split-out SUT counts from different groups of SUTs to obtain a unified
+    dataframe. Add some descriptive columns to this dataframe.
+
+    """
     mvc_mc_pc_pt_lct_ob_sb_tb_rt_mh = pd.concat(
         [mvc_mc_pc, mvc_sut_pt_lct, mvc_sut_ob_sb_tb, mvc_modsut_rt_mh]
     )
@@ -278,6 +348,10 @@ def concat_suts(
 
 
 def apply_fuel_dist(mvc_suts_, mvs303fueldist_):
+    """
+    Apply the `mvs303fueldist_` fuel type distribution from default MOVES run to the
+    MVC counts by SUT dataframe obtained from the `concat_suts` function.
+    """
     assert set(mvc_suts_.sourceTypeName) == set(mvs303fueldist_.sourceTypeName)
     mvc_suts_ftype = mvc_suts_.merge(
         mvs303fueldist_, on=["yearID", "sourceTypeName"], how="left"
@@ -305,6 +379,10 @@ def apply_fuel_dist(mvc_suts_, mvs303fueldist_):
 
 
 def filt_to_tod(mvc_suts_ftype_, tod_map_, txdist_):
+    """
+    Filter the values from `apply_fuel_dist` to different TOD hours and normalize the
+    counts to get the Count distribution or the "VMT-Mix".
+    """
     tod_lng_map = {}
     for key, vals in tod_map_.items():
         for val in vals:
@@ -382,6 +460,7 @@ def main():
     now_mnt = str(datetime.datetime.now().month).zfill(2)
     now_mntyr = now_mnt + now_yr
     # Set path
+    #-----------------------------------------------------------------------------------
     path_mvc_vmtmix = list(path_output.glob("mvc_vmtmix_*.csv"))[0]
     path_faf4_su_ct_lh_sh_pct = Path.joinpath(path_interm, "faf4_su_ct_lh_sh_pct.tab")
     path_mvs303defaultsutdist = Path.joinpath(path_interm, "mvs303defaultsutdist.csv")
@@ -397,26 +476,28 @@ def main():
         columns={"DIST_NBR": "txdot_dist", "DIST_NM": "district"}
     )
     # Process Data
+    # ----------------------------------------------------------------------------------
     mvc_vmtest_long = prc_mvc(mvc_vmtmix_=mvc_vmtmix)
-    mvc_sut_pt_lct = fac_natdef(
+    mvc_sut_pt_lct = fac_sutdist_natdef(
         mvc_=mvc_vmtest_long,
         mvc_vtype_cat={"mvc_vtype_cat": "PT_LCT"},
         mvs303defaultsutdist_=mvs303defaultsutdist,
         modhpmsvehcat={"modhpms_vtype_name": "PT_LCT"},
     )
-    mvc_sut_ob_sb_tb = fac_natdef(
+    mvc_sut_ob_sb_tb = fac_sutdist_natdef(
         mvc_=mvc_vmtest_long,
         mvc_vtype_cat={"mvc_vtype_cat": "Bus"},
         mvs303defaultsutdist_=mvs303defaultsutdist,
         modhpmsvehcat={"modhpms_vtype_name": "Buses"},
     )
-    mvc_modsut_su_rt_mh = fac_natdef(
+    mvc_modsut_su_rt_mh = fac_sutdist_natdef(
         mvc_=mvc_vmtest_long,
         mvc_vtype_cat={"mvc_vtype_cat": "SU_MH_RT_HDV"},
         mvs303defaultsutdist_=mvs303defaultsutdist,
         modhpmsvehcat={"modhpms_vtype_name": "SU_MH_RT_HDV"},
     )
     # Process remaining mvc vehicle categories.
+    # -----------------------------------------
     mvc_vmtmix_long_filt = mvc_vmtest_long.loc[
         lambda df: df.mvc_vtype_cat.isin(["MC", "PC", "CT_HDV"])
     ]
@@ -426,6 +507,7 @@ def main():
     )
 
     # Long haul vs. Short haul using FAF4
+    # -----------------------------------
     mvc_su = mvc_modsut_su_rt_mh.loc[lambda df: df.modsutname == "Single Unit Truck"]
     mvc_ct = mvc_mc_pc_ct[lambda df: df.modsutname == "CT_HDV"]
     mvc_su_ct = pd.concat([mvc_su, mvc_ct])
@@ -433,6 +515,7 @@ def main():
     mvc_su_ct_sut = apply_faf4_fac(mvc_su_ct_=mvc_su_ct, faf4_fac_=faf4_fac)
 
     # Concat data
+    # ------------
     mvc_modsut_rt_mh = mvc_modsut_su_rt_mh.loc[
         lambda df: df.modsutname.isin(["Motor Home", "Refuse Truck"])
     ]
@@ -445,16 +528,18 @@ def main():
         mvc_su_ct_sut=mvc_su_ct_sut,
     )
     # Apply Fuel Fractions
+    # ---------------------
     mvc_suts_ftype = apply_fuel_dist(mvc_suts_=mvc_suts, mvs303fueldist_=mvs303fueldist)
     mvc_suts_ftype.sut_ftype_vmt_est.describe()
+
+    # Filter to TOD and Estimate VMT-Mix
+    # ----------------------------------------------------------------------------------
     tod_map = {
         "AM": (6, 7, 8),
         "MD": (9, 10, 11, 12, 13, 14, 15),
         "PM": (16, 17, 18),
         "ON": (19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5),
     }
-    from itertools import chain
-
     hours_ = list(chain(*tod_map.values()))
     hours_.sort()
     assert (set(hours_) == set(mvc_suts_ftype.hour)) & (

@@ -270,14 +270,14 @@ class TrucksDist:
 
     @staticmethod
     @timing
-    def compute_vmt_dist(ass_faf4_, erg_crc_a88_vius2002_SULhT_pct=0.103):
+    def compute_vmt_dist(ass_faf4_, erg_crc_a88_vius2002_SULhT_pct=0.103) -> pd.DataFrame:
         """
         Static method, so does not have an instance of the class (self) in it.
 
-        - faf12: Year 2012 FAF long distance truck volume estimated based on the FAF 4 Origin-Destination truck tonnage and includes empty trucks. Volume/day/section.
-        - nonfaf12: Year 2012 Local truck traffic that is not part of FAF 4 O-D database. Volume/day/section
-        - su_aadt12: Single Unit Truck Traffic year 2012
-        - comb_aadt1: Combination Unit Truck Traffic year 2012
+        faf12 - Year 2012 FAF long distance truck volume estimated based on the FAF 4 Origin-Destination truck tonnage and includes empty trucks. Volume/day/section.
+        nonfaf12 - Year 2012 Local truck traffic that is not part of FAF 4 O-D database. Volume/day/section
+        su_aadt12 - Single Unit Truck Traffic year 2012
+        comb_aadt1 - Combination Unit Truck Traffic year 2012
 
         Parameters
         ----------

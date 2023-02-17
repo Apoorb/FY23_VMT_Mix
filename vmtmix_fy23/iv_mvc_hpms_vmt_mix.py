@@ -77,6 +77,14 @@ class MVCVmtMix:
         self.dgcodes = pd.read_excel(self.path_dgcodes_marty)
 
     def set_mvc(self):
+        """
+        Read the manual vehicle count parquet file into a pandas dataframe. Extract date
+        tim parameters such as year, hour, month, dow. Filter the data to be between the
+        min_yr and max_yr years. For FY22 the min_yr was 2013 and max_yr was 2019. Drop
+        the rows where the MVC doesn't have road type info. Create a copy of MVC data
+        and assign road, area, and access type as "ALL". Map the data to MOVES road types.
+        Create new columns to represent counts by HPMS vehicle categories.
+        """
         df_mvc = pq.read_table(self.path_mvc_pq).to_pandas()
         df_mvc["year"] = df_mvc.start_datetime.dt.year
         df_mvc["hour"] = df_mvc.start_datetime.dt.hour
@@ -122,12 +130,15 @@ class MVCVmtMix:
         self.mvc = mvc_1
 
     def set_txdist(self):
+        """Read TxDOT district shapefile."""
         txdist_tmp = gpd.read_file(path_txdot_districts_shp)
         self.txdist = txdist_tmp[["DIST_NBR", "DIST_NM"]].rename(
             columns={"DIST_NBR": "txdot_dist", "DIST_NM": "district"}
         )
 
     def set_conv_aadt_adt_mnth(self):
+        """Read the AADT to ADT by month and day of the week conversion factor. We
+        will be using the inverse of this factor."""
         conv_aadt_adt_mnth = pd.read_csv(self.path_conv_aadt2mnth_dow, sep="\t")
         conv_aadt_adt_mnth = conv_aadt_adt_mnth.rename(
             columns=get_snake_case_dict(conv_aadt_adt_mnth)
@@ -144,6 +155,7 @@ class MVCVmtMix:
         )
 
     def set_conv_aadt2dow_by_vehcat(self):
+        """Read the AADT to DOW factor by vehicle category."""
         conv_aadt2dow_by_vehcat = pd.read_csv(
             self.path_conv_aadt2dow_by_vehcat, sep="\t"
         )
@@ -152,6 +164,7 @@ class MVCVmtMix:
         )
 
     def filt_mvc_counts(self):
+        """Filter MVC counts to """
         mvc_filt_ = self.mvc.groupby(
             [
                 "sta_pre_id_suf_fr",
@@ -175,6 +188,10 @@ class MVCVmtMix:
         return mvc_filt_adt_
 
     def agg_mvc_counts(self, spatial_level="district"):
+        """
+        Aggregate (average) the counts to `spatial_level` (district or district group), road type, and hour.
+        Convert the count to AADT before aggregating.
+        """
         mvc_filt_adt = self.filt_mvc_counts()
         with switchoff_chainedass_warn:
             mvc_filt_adt["MC_adt"] = mvc_filt_adt["MC"] * mvc_filt_adt.inv_f_m_d
@@ -192,6 +209,8 @@ class MVCVmtMix:
         return mvc_filt_adt_agg
 
     def get_mvc_sample_size(self, spatial_level):
+        """Get the sample size (# of counters) per `spatial_level`, road type, and
+         hour."""
         mvc_filt_adt = self.filt_mvc_counts()
         mvc_filt_adt_sample_size = mvc_filt_adt.groupby(
             [spatial_level, "mvs_rdtype_nm", "mvs_rdtype", "year", "hour"],
@@ -204,6 +223,13 @@ class MVCVmtMix:
 
 
 def get_min_ss_per_loc(mvcvmtmix_, spatial_level_):
+    """
+    Create `spatial_rdtyp_lng` dataframe of all combinations of districts or district
+    groups and road types. Call `get_mvc_sample_size` to get the sample size. Check
+    if there are at least 5 counters available for each analysis group: `spatial_level_`,
+    road type, and hour.
+
+    """
     txdist_rdtyp_ = mvcvmtmix_.txdist
     dgcodes_rdtyp_ = mvcvmtmix_.dgcodes.drop_duplicates("dgcode")[["dgcode"]]
     if spatial_level_ == "district":
@@ -232,6 +258,34 @@ def get_min_ss_per_loc(mvcvmtmix_, spatial_level_):
 
 
 def handle_low_district_ss(all_district_sta_counts_, mvcvmtmix_):
+    """
+    Impute missing counts for district + road type groups that have less than 5 stations
+    by aggregating the counts of district groups + road types that have at least 5 stations.
+    Parameters
+    ----------
+    all_district_sta_counts_ : pandas.DataFrame
+        A DataFrame containing station count information at the district and road type level.
+        Must contain the columns 'district', 'mvs_rdtype_nm', and 'min_avg_sta_count'.
+    mvcvmtmix_ : MVCVmtMix
+        A `MVCVmtMix` object containing data and function to compute MVC counts at the
+        district and/or district group level.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame containing imputed  counts at the district and road type level.
+        The DataFrame has the columns 'district', 'mvs_rdtype_nm', 'hour', 'based_on_dg',
+        'MC_adt', 'PC_adt', 'PT_LCT_adt', 'Bus_adt', 'SU_MH_RT_HDV_adt', and
+        'CT_HDV_adt', representing the district identifier, the road type group, the
+        hour of the day, a Boolean flag indicating whether the imputation is based on
+        district groups, and the MVC counts for the district and road type group.
+
+    Raises
+    ------
+    AssertionError
+        If the resulting DataFrame does not have the expected number of rows or if there is
+        more than one count for the "district", "mvs_rdtype_nm", "hour" group.
+    """
     all_district_sta_counts_1 = all_district_sta_counts_.merge(
         mvcvmtmix_.dgcodes, on="district"
     )
@@ -270,6 +324,35 @@ def handle_low_district_ss(all_district_sta_counts_, mvcvmtmix_):
 
 
 def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
+    """
+    Computes the vehicle miles traveled (VMT) surrogate (counts-based) distribution by
+    day of week and vehicle category for each district + road type group using the MVC
+    counts.
+
+    Parameters
+    ----------
+    mvc_agg_dist_imputed_ : pandas.DataFrame
+        A DataFrame containing the imputed MVC counts at the district and road type level.
+        Must contain the columns 'district', 'mvs_rdtype_nm', 'hour', 'based_on_dg',
+        'MC_adt', 'PC_adt', 'PT_LCT_adt', 'Bus_adt', 'SU_MH_RT_HDV_adt', and 'CT_HDV_adt'.
+    mvcvmtmix_ : MVCVmtMix
+        A `MVCVmtMix` object containing data and functions to compute counts by
+        day of week and vehicle category.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame containing the counts by day of week and vehicle category for each
+        district + road type group. The DataFrame has the columns 'dgcode', 'district',
+        'based_on_dg', 'mvs_rdtype_nm', 'mvs_rdtype', 'dowagg', 'hour', 'MC_dow', 'PC_dow',
+        'PT_LCT_dow', 'Bus_dow', 'SU_MH_RT_HDV_dow', 'CT_HDV_dow', 'Total_dow', 'MC_frac',
+        'PC_frac', 'PT_LCT_frac', 'Bus_frac', 'SU_MH_RT_HDV_frac', and 'CT_HDV_frac',
+        representing the district group code, district identifier, Boolean flag indicating
+        whether the imputation is based on district groups, road type group, road type code,
+        day of week, hour of the day, counts  by day of week and vehicle category, total
+        VMT by day of week, and count (VMT) fraction by day of week and vehicle category.
+
+    """
     fac_dow_by_vehcat = mvcvmtmix_.conv_aadt2dow_by_vehcat
     fac_dow_by_vehcat_filt = fac_dow_by_vehcat.filter(
         items=[
@@ -341,13 +424,8 @@ def main():
     path_out_mvc_vmtmix = Path.joinpath(path_output, f"mvc_vmtmix_{now_mntyr}.csv")
 
     mvcvmtmix = MVCVmtMix()
-    mvc_agg_dg = mvcvmtmix.agg_mvc_counts(spatial_level="dgcode")
-    mvc_ss_dg = mvcvmtmix.get_mvc_sample_size(spatial_level="dgcode")
     all_district_sta_counts = get_min_ss_per_loc(
         mvcvmtmix_=mvcvmtmix, spatial_level_="district"
-    )
-    filling_dgcode_sta_counts = get_min_ss_per_loc(
-        mvcvmtmix_=mvcvmtmix, spatial_level_="dgcode"
     )
     mvc_agg_dist_imputed = handle_low_district_ss(
         all_district_sta_counts_=all_district_sta_counts, mvcvmtmix_=mvcvmtmix
@@ -357,6 +435,12 @@ def main():
     all_district_sta_counts.to_csv(path_out_sta_counts, index=False)
 
     vmtmix_dow.to_csv(path_out_mvc_vmtmix, index=False)
+
+    # mvc_agg_dg = mvcvmtmix.agg_mvc_counts(spatial_level="dgcode")
+    # mvc_ss_dg = mvcvmtmix.get_mvc_sample_size(spatial_level="dgcode")
+    # filling_dgcode_sta_counts = get_min_ss_per_loc(
+    #     mvcvmtmix_=mvcvmtmix, spatial_level_="dgcode"
+    # )
 
 
 if __name__ == "__main__":
