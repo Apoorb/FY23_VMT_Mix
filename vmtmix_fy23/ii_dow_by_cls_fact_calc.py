@@ -32,9 +32,10 @@ def fun_region_episode(atr_data, episode_index, region_cat_name):
     length is the same as df atr_data
     """
     episode_atr_data = atr_data[episode_index]
-    region_episode_atr_data = (
-        episode_atr_data.groupby([region_cat_name]).mean().reset_index()
-    )
+    with switchoff_chainedass_warn:
+        region_episode_atr_data = (
+            episode_atr_data.groupby([region_cat_name]).mean().reset_index()
+        )
     return region_episode_atr_data
 
 
@@ -61,7 +62,6 @@ def unique_datetimes_test(perm_countr_fil_):
     )
 
 
-@timing
 def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
     """Convert AADT To monthly DOW ADT."""
     path_perm_countr_pq = Path.joinpath(
@@ -128,8 +128,6 @@ def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
     )[agg_vtype_cols].sum()
     atr_db_all["Total"] = atr_db_all[agg_vtype_cols].sum(axis=1)
     atr_db_all["pct_hdv"] = atr_db_all.HDV / atr_db_all.Total
-    atr_db_all.pct_hdv.describe()
-    atr_db_all.describe()
     # XXX: Zero MC and Buses in a day seems reasonable. Need more investigation if we
     # need more thorough anawer.
     zero_mask = (atr_db_all[["PC", "PT_LCT", "HDV"]] == 0).any(axis=1)
@@ -166,7 +164,7 @@ def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
     }
     with switchoff_chainedass_warn:
         atr_db_all_fil["dowagg"] = atr_db_all_fil.dow_nm.map(map_dow)
-    dow_adt = atr_db_all_fil.groupby([Selected_region, "dowagg"]).mean().reset_index()
+        dow_adt = atr_db_all_fil.groupby([Selected_region, "dowagg"]).mean().reset_index()
     df_adt = aadt.merge(
         dow_adt,
         how="left",
@@ -181,8 +179,8 @@ def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
         df_adt["f_m_d_Bus"] = df_adt.Bus_dow / df_adt.Bus
         df_adt["f_m_d_HDV"] = df_adt.HDV_dow / df_adt.HDV
         df_adt["f_m_d_Total"] = df_adt.Total_dow / df_adt.Total
-    with pd.option_context("display.max_columns", 16):
-        print(df_adt.describe())
+    # with pd.option_context("display.max_columns", 16):
+    #     print(df_adt.describe())
     df_adt.to_csv(
         Path.joinpath(path_interm, out_fi), sep="\t", index=False
     )

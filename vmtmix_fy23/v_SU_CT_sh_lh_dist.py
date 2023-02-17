@@ -75,7 +75,6 @@ class TrucksDist:
             7: "ura",
         }
 
-    @timing
     def read_data(self):
         """
         Read FAF4 assignment and metadata, county geodata, and urbanized area
@@ -85,19 +84,18 @@ class TrucksDist:
         ass_faf4 = gpd.read_file(self.dbf_ass_faf4)
         ass_faf4 = ass_faf4.rename(columns=get_snake_case_dict(ass_faf4))
         self.ass_faf4_tx = ass_faf4.loc[ass_faf4.state == "TX"]
-        self.ass_faf4_tx.info()
+        # self.ass_faf4_tx.info()
         ## Read FAF4 Metadata
         meta_faf4 = gpd.read_file(self.shp_meta_faf4)
         meta_faf4 = meta_faf4.rename(columns=get_snake_case_dict(meta_faf4))
         self.meta_faf4_tx = meta_faf4.loc[meta_faf4.state == "TX"]
-        self.meta_faf4_tx.info()
+        # self.meta_faf4_tx.info()
         ## Read County Shapefile
         gdf_county = gpd.read_file(path_county_shp)
         gdf_county = gdf_county.rename(columns=get_snake_case_dict(gdf_county))
         self.gdf_county_1 = gdf_county.filter(items=["txdot_dist", "fips_st_cn"])
         self.txdot_urbanized = gpd.read_file(self.path_urbanized_shp)
 
-    @timing
     def prc_meta_faf4(self):
         """
         Process the FAF4 metadata that has route information. We already filtered the
@@ -211,7 +209,6 @@ class TrucksDist:
         # Statewide data. Use for getting default values.
         self.meta_faf4_tx_default = meta_faf4_tx_3.copy()
 
-    @timing
     def get_vmt_dist(self) -> dict[pd.DataFrame, pd.DataFrame]:
         """
         Get the distribution of the CLhT, CShT, SULhT, and SUShT by district and at
@@ -269,7 +266,6 @@ class TrucksDist:
         return dict(vmt_dist_tx=self.vmt_dist_tx, vmt_dist_txdist=self.vmt_dist_txdist)
 
     @staticmethod
-    @timing
     def compute_vmt_dist(ass_faf4_, erg_crc_a88_vius2002_SULhT_pct=0.103) -> pd.DataFrame:
         """
         Static method, so does not have an instance of the class (self) in it.
@@ -388,6 +384,7 @@ class TrucksDist:
         return ass_faf4_tx_3
 
 
+@timing
 def faf4_su_ct_lh_sh_pct(out_fi):
     truckdist = TrucksDist(
         path_faf_=path_faf, path_inp_=path_inp
@@ -397,7 +394,6 @@ def faf4_su_ct_lh_sh_pct(out_fi):
     vmt_dist_dict = truckdist.get_vmt_dist()
     path_out = Path.joinpath(path_interm, out_fi)
     vmt_dist_dict["vmt_dist_tx"].to_csv(path_out, index=False, sep="\t")
-    print("Finished processing...")
 
 
 if __name__ == "__main__":

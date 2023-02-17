@@ -18,10 +18,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), ".."))
 from vmtmix_fy23.utils import (
     ChainedAssignent,
     path_txdot_fy22,
-    path_txdot_districts_shp,
-    path_interm,
     path_county_shp,
     get_snake_case_dict,
+    timing
 )
 
 switchoff_chainedass_warn = ChainedAssignent()
@@ -210,6 +209,7 @@ def get_sta_pre_id_suf_cmb(data_, sub_col):
     return data_1_
 
 
+@timing
 def raw_dt_prc(
         MVC_file="MVC_2013_21_received_on_030922",
         PERM_file="PERM_CLASS_BY_HR_2013_2021"

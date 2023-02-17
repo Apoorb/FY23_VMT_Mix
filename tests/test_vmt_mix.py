@@ -14,7 +14,7 @@ def test_code_produce_same_vmt_mix_as_042023():
     p_feb23_vmt_mix = (
         r"E:\Texas A&M Transportation Institute"
         r"\TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors\Data"
-        r"\output\fin_vmtmix_022023_042022_comp.csv"
+        r"\output\fy23_fin_vmtmix_13_19_022023.csv"
     )
     apr22_vmt_mix = pd.read_csv(p_apr22_vmt_mix)
     feb23_vmt_mix = pd.read_csv(p_feb23_vmt_mix)

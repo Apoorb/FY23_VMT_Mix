@@ -20,6 +20,7 @@ from vmtmix_fy23.utils import (
     path_txdot_districts_shp,
     ChainedAssignent,
     get_snake_case_dict,
+    timing
 )
 
 switchoff_chainedass_warn = ChainedAssignent()
@@ -96,7 +97,7 @@ class MVCVmtMix:
         with switchoff_chainedass_warn:
             df_mvc_nona["mvs_rdtype"] = df_mvc_nona["mvs_rdtype"].astype(int)
         nan_data_size = (len(df_mvc) - len(df_mvc_nona)) / len(df_mvc)
-        print(f"Removing {nan_data_size :%} of data with no road type.")
+        # print(f"Removing {nan_data_size :%} of data with no road type.")
         df_mvc.loc[df_mvc.mvs_rdtype.isna(), "sta_pre_id_suf_fr"].unique()
         mvc_ALL = df_mvc_nona.copy(deep=True)
         mvc_ALL["mvs_rdtype"] = "ALL"
@@ -416,6 +417,7 @@ def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
     return mvc_agg_dist_imputed_dow_filt
 
 
+@timing
 def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     now_yr = str(datetime.datetime.now().year)
     now_mnt = str(datetime.datetime.now().month).zfill(2)
@@ -438,7 +440,7 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
 
     # mvc_agg_dg = mvcvmtmix.agg_mvc_counts(spatial_level="dgcode")
     # mvc_ss_dg = mvcvmtmix.get_mvc_sample_size(spatial_level="dgcode")
-    # filling_dgcode_sta_counts = get_min_ss_per_loc(
+    # filling_dgcode_sta_counts = get_minf_ss_per_loc(
     #     mvcvmtmix_=mvcvmtmix, spatial_level_="dgcode"
     # )
 
