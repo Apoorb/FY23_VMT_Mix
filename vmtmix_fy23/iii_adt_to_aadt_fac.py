@@ -32,13 +32,13 @@ def fun_region_episode(atr_data, episode_index, region_cat_name):
 
     """
     episode_atr_data = atr_data[episode_index]
-    region_episode_atr_data = (
-        episode_atr_data.groupby([region_cat_name]).mean().reset_index()
-    )
+    with switchoff_chainedass_warn:
+        region_episode_atr_data = (
+            episode_atr_data.groupby([region_cat_name]).mean().reset_index()
+        )
     return region_episode_atr_data
 
 
-@timing
 def conv_aadt_adt_mnth_dow(out_fi, min_yr=2013, max_yr=2019):
     """
     Convert AADT To monthly DOW ADT.
@@ -132,9 +132,10 @@ def conv_aadt_adt_mnth_dow(out_fi, min_yr=2013, max_yr=2019):
         right_on=[Selected_region],
         suffixes=("", "_r"),
     )
-    month_adt = (
-        atr_db_all.groupby([Selected_region, "Month", "day"]).mean().reset_index()
-    )
+    with switchoff_chainedass_warn:
+        month_adt = (
+            atr_db_all.groupby([Selected_region, "Month", "day"]).mean().reset_index()
+        )
     month_adt = month_adt[[Selected_region, "Month", "day", "TOTAL"]]
     month_adt["dow_nm"] = month_adt["day"].map(map_dow)
     month_adt["mnth_nm"] = month_adt["Month"].map(map_mnth)

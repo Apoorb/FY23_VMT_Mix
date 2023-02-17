@@ -18,14 +18,9 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
 from vmtmix_fy23.utils import (
-    path_prj_code,
-    ChainedAssignent,
     path_interm,
-    path_inp,
-    path_county_shp,
-    path_fig_dir,
-    get_snake_case_dict,
     connect_to_server_db,
+    timing
 )
 
 
@@ -342,6 +337,7 @@ def get_mvs303fueldist(anlyr = [1990] + list(range(2000, 2065, 5))):
     return mvs303souagedis_fueldist_agg_fil
 
 
+@timing
 def mvs_sut_nd_fuel_mx(fueldist_outfi, sut_hpms_dist_outfi):
     mvs303fueldist = get_mvs303fueldist()
     path_mvs303fueldist = Path.joinpath(path_interm, "mvs303fueldist.csv")

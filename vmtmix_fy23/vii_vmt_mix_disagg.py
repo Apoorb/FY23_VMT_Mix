@@ -16,6 +16,7 @@ from vmtmix_fy23.utils import (
     path_output,
     path_txdot_districts_shp,
     ChainedAssignent,
+    timing
 )
 
 switchoff_chainedass_warn = ChainedAssignent()
@@ -455,6 +456,7 @@ def filt_to_tod(mvc_suts_ftype_, tod_map_, txdist_):
     return mvc_suts_ftype_tod_agg_
 
 
+@timing
 def fin_vmt_mix(out_file_nm="fin_vmtmix"):
     now_yr = str(datetime.datetime.now().year)
     now_mnt = str(datetime.datetime.now().month).zfill(2)
