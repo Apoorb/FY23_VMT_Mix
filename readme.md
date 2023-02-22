@@ -12,7 +12,7 @@ if __name__ == "__main__":
     main(min_yr=2013, max_yr=2021)
 ```
 ## Modules used
-The following modules from vmtmix_fy23 are used in this script:
+The following modules from `vmtmix_fy23` are used in this script:
 
 - `i_raw_dt_prc`: processes the raw MVC and permanent counter data to fix date time format, station id, map road types to MOVES, and save data to parquet for faster loading.
 - `ii_dow_by_cls_fact_calc`: creates DOW by veh class factors that will be applied to the AADT from ATR data by vehicle class.
