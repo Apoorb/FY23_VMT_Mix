@@ -1,6 +1,7 @@
 """
-
-
+Test that the refactored code produces the same output as before.
+Created by: Apoorb
+Created on: 02/22/2023
 """
 import pandas as pd
 

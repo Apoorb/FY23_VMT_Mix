@@ -12,9 +12,7 @@ from vmtmix_fy23 import (
 
 
 @timing
-def main():
-    min_yr = 2013
-    max_yr = 2021
+def main(min_yr, max_yr):
     # Process the raw MVC and permanent counter data to fix date time format, station id,
     # map road types to MOVES, and save data to parquet for faster loading.
     i_raw_dt_prc.raw_dt_prc(
@@ -45,8 +43,14 @@ def main():
     )
     # Appy the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
     # and normalize the final counts to get the SUT-FT dist.
-    vii_vmt_mix_disagg.fin_vmt_mix(out_file_nm="fy23_fin_vmtmix_13_20")
+    suf1 = min_yr - 2000
+    suf2 = max_yr - 2000
+    vii_vmt_mix_disagg.fin_vmt_mix(out_file_nm=f"fy23_fin_vmtmix_{suf1}_{suf2}")
 
 
 if __name__ == "__main__":
-    main()
+    main(min_yr=2017, max_yr=2021)
+    main(min_yr=2017, max_yr=2019)
+    main(min_yr=2013, max_yr=2021)
+
+
