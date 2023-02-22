@@ -4,7 +4,7 @@ This module contains a script for generating VMT-Mix using data from various sou
 To use this module, first clone the repository and install the required dependencies using the following command:
 `pip install -r requirements.txt`
 ## Usage
-To generate VMT-Mix, call the main function in the script and pass in the minimum and maximum years to generate VMT-Mix for. The function will run several steps, including processing raw data, computing conversion factors, and normalizing the final counts. The generated VMT-Mix will be saved to a file with a name that includes the year range used to generate it.
+To generate VMT-Mix, call the main function in the `analysis/generate_vmt_mix` and pass in the minimum and maximum years to generate VMT-Mix for. The function will run several steps, including processing raw data, computing conversion factors, and normalizing the final counts. The generated VMT-Mix will be saved to a file with a name that includes the year range used to generate it.
  ```
 if __name__ == "__main__":
     main(min_yr=2017, max_yr=2021)
