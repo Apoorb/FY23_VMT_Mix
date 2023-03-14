@@ -11,6 +11,8 @@ from pathlib import Path
 import geopandas as gpd
 import pyarrow.parquet as pq
 import pyarrow as pa
+import matplotlib.pyplot as plt
+import seaborn as sns
 import os
 import sys
 
@@ -78,9 +80,8 @@ def clean_perm_countr() -> pd.DataFrame:
     perm_countr[["local_id", "master_local_id"]] = perm_countr[
         ["local_id", "master_local_id"]
     ].astype(str)
-    perm_countr = get_sta_pre_id_suf_cmb(data_=perm_countr, sub_col="local_id")
+    perm_countr["sta_pre_id_suf_fr"] = perm_countr["local_id"]
     perm_countr_1 = add_mvs_rdtype_to_perm(perm_countr)
-
     return perm_countr_1
 
 
@@ -112,8 +113,8 @@ def clean_mvc_countr(mvc_file):
         - start_datetime
         - location_id
     """
-    path_mvc_countr_xlsx = Path.joinpath(path_txdot_fy22, mvc_file)
-    mvc_countr = pd.read_excel(path_mvc_countr_xlsx)
+    path_mvc_countr = Path.joinpath(path_txdot_fy22, mvc_file)
+    mvc_countr = pd.read_csv(path_mvc_countr)
     mvc_countr.rename(columns=get_snake_case_dict(mvc_countr), inplace=True)
     mvc_countr.longitude.astype(str).str.isnumeric().sum()
     garbage = mvc_countr.loc[lambda df: df.longitude == "--"]
@@ -193,23 +194,71 @@ def save_raw_data_as_parquet(
 
 def get_sta_pre_id_suf_cmb(data_, sub_col):
     """Return concatenated station identifiers."""
-    ids_df = data_.loc[:, [sub_col]].drop_duplicates().reset_index(drop=True)
-    ids_df[["sta_pre", "sta_id", "sta_suf_fr"]] = ids_df[sub_col].str.extract(
-        r"(\D+)(\d{1,4})(\w*)", expand=True
-    )
-    ids_df["sta_id"] = ids_df.sta_id.fillna(ids_df[sub_col])
-    ids_df["sta_pre"] = ids_df["sta_pre"].str.replace(" ", "")
-    ids_df["fr_bool"] = ids_df["sta_suf_fr"].str.contains("FR")
-    ids_df["fr"] = ids_df.fr_bool.map({True: "FR", False: ""})
-    ids_df["sta_suf"] = ids_df["sta_suf_fr"].str.replace(" ", "").str.replace("FR", "")
-    with switchoff_chainedass_warn:
-        ids_df["sta_pre_id_suf_fr"] = (
-            ids_df[["sta_pre", "sta_id", "sta_suf", "fr"]]
-            .astype(str)
-            .agg("-".join, axis=1)
-        )
-    data_1_ = data_.merge(ids_df, on=sub_col, how="left")
-    return data_1_
+    # FixMe: Only keep unique stations. If the data has "ALL", "EB", and "WB". 
+    # Just keep "EB" and "WB".
+    ################
+    data_[["loc_id", "dir"]] = data_[sub_col].str.split("_", expand=True)
+    data_["dir"] = data_["dir"].fillna("ALL")
+    data_["year_"] = data_.start_datetime.dt.year
+    stations = data_[["year_", "loc_id", "dir"]].drop_duplicates()
+    stations.sort_values(["loc_id", "dir", "year_"], ignore_index=True, inplace=True)
+    stations["has_ALL"] = stations.dir == 'ALL'
+    stations["has_dir"] = stations.dir != 'ALL'
+    stations_cnt = stations.groupby(
+        ["year_", "loc_id"], as_index=False).agg(
+            cnt_ALL=("has_ALL", "sum"), cnt_dir=("has_dir", "sum")
+            ).sort_values(["loc_id", "year_"], ignore_index=True, inplace=False)
+    
+    len(stations_cnt)
+            
+            
+    stations_cnt_1 = stations_cnt.loc[stations_cnt.cnt_ALL == 0]
+    stations_cnt_2 = stations_cnt.loc[stations_cnt.cnt_dir == 0]
+    stations_cnt_3 = stations_cnt.loc[
+        (stations_cnt.cnt_ALL != 0) & (stations_cnt.cnt_dir != 0)]
+    assert (
+        len(stations_cnt) == len(stations_cnt_1) + len(stations_cnt_2) + len(stations_cnt_3)
+        ), "The three sub-dataframes are not exclusive and exhaustive."
+    assert (
+        len(stations_cnt.loc[(stations_cnt.cnt_ALL == 0) & (stations_cnt.cnt_dir == 0)]) ==0
+        ), "Either directional or total counts should be present."
+
+    # The location ids + years in stations_cnt_1 and stations_cnt_2 are good as it has
+    # either directional or total data, respectively.
+    # The location ids + years in stations_cnt_3 need to handled, as 
+    # Do some debuggin on PC counts for stations_cnt_3 location_id and year
+
+    station_pivot = pd.pivot_table(
+        data_, index=["year_", "loc_id"],
+        values="class2", columns="dir",
+        aggfunc=np.sum, fill_value=0
+    ).reset_index()
+    dir_cols = [col for col in station_pivot.columns if col not in["ALL", "year_"]]
+    station_pivot["ALL_from_dir"] = station_pivot[dir_cols].sum(axis=1)
+    station_pivot["Diff_Cnts"] = station_pivot.ALL - station_pivot.ALL_from_dir
+    non_zero_loc_ids = stations_cnt_3.loc_id.unique()
+    station_pivot_check = station_pivot.merge(stations_cnt_3, on=["loc_id", "year_"])
+    assert len(station_pivot_check.loc[lambda df: df.Diff_Cnts > 0]) == 2, (
+        "based on 2021 TxDOT data, only two instances should be there of Total PC (ALL)"
+        " volume exceeding directional volume")
+    # Handle duplicate stations.
+    unq_sta_df = pd.concat([
+        stations_cnt_1.filter(items=["year_", "loc_id"]).assign(use_ALL=False),
+        stations_cnt_2.filter(items=["year_", "loc_id"]).assign(use_ALL=True),
+        stations_cnt_3.filter(items=["year_", "loc_id"]).assign(use_ALL=False)
+        ])
+
+    data_["sta_pre_id_suf_fr"] = data_["loc_id"]
+    data_["is_ALL"] = data_["dir"] == "ALL"
+    data_1_ = data_.merge(unq_sta_df, on=["year_", "loc_id"])
+    # keep_rows is XNOR gate.
+    data_1_["keep_rows"] = data_1_.is_ALL == data_1_.use_ALL
+    data_2_ = data_1_.loc[data_1_.keep_rows]
+    
+    assert (
+        set(data_2_.loc_id.unique()).symmetric_difference(set(unq_sta_df.loc_id)) == set()
+        ), "After above filtering some data was lost."
+    return data_2_
 
 
 @timing
@@ -242,7 +291,7 @@ def raw_dt_prc(
     # --------------------------
     if not Path.exists(path_mvc_countr_pq):
         mvc_countr_fil = clean_mvc_countr(
-            mvc_file=MVC_file + ".xlsx"
+            mvc_file=MVC_file + ".csv"
         )
         mvc_countr_fil = mvc_countr_fil.merge(gdf_county_1, on="county", how="left")
         mvc_countr_fil = add_mvs_rdtype_to_mvc_new(mvc_countr_fil)

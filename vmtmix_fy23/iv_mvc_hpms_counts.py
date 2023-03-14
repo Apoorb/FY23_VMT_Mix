@@ -189,25 +189,30 @@ class MVCVmtMix:
         return mvc_filt_adt_
 
     def agg_mvc_counts(self, spatial_level="district"):
-        """
-        Aggregate (average) the counts to `spatial_level` (district or district group), road type, and hour.
-        Convert the count to AADT before aggregating.
-        """
+    #     """
+    #     Aggregate (average) the counts to `spatial_level` (district or district group), road type, and hour.
+    #     Convert the count to AADT before aggregating.
+    #     """
         mvc_filt_adt = self.filt_mvc_counts()
-        with switchoff_chainedass_warn:
-            mvc_filt_adt["MC_adt"] = mvc_filt_adt["MC"] * mvc_filt_adt.inv_f_m_d
-            mvc_filt_adt["PC_adt"] = mvc_filt_adt["PC"] * mvc_filt_adt.inv_f_m_d
-            mvc_filt_adt["PT_LCT_adt"] = mvc_filt_adt["PT_LCT"] * mvc_filt_adt.inv_f_m_d
-            mvc_filt_adt["Bus_adt"] = mvc_filt_adt["Bus"] * mvc_filt_adt.inv_f_m_d
-            mvc_filt_adt["SU_MH_RT_HDV_adt"] = (
-                mvc_filt_adt["SU_MH_RT_HDV"] * mvc_filt_adt.inv_f_m_d
-            )
-            mvc_filt_adt["CT_HDV_adt"] = mvc_filt_adt["CT_HDV"] * mvc_filt_adt.inv_f_m_d
+    #     with switchoff_chainedass_warn:
+    #         mvc_filt_adt["MC_adt"] = mvc_filt_adt["MC"] * mvc_filt_adt.inv_f_m_d
+    #         mvc_filt_adt["PC_adt"] = mvc_filt_adt["PC"] * mvc_filt_adt.inv_f_m_d
+    #         mvc_filt_adt["PT_LCT_adt"] = mvc_filt_adt["PT_LCT"] * mvc_filt_adt.inv_f_m_d
+    #         mvc_filt_adt["Bus_adt"] = mvc_filt_adt["Bus"] * mvc_filt_adt.inv_f_m_d
+    #         mvc_filt_adt["SU_MH_RT_HDV_adt"] = (
+    #             mvc_filt_adt["SU_MH_RT_HDV"] * mvc_filt_adt.inv_f_m_d
+    #         )
+    #         mvc_filt_adt["CT_HDV_adt"] = mvc_filt_adt["CT_HDV"] * mvc_filt_adt.inv_f_m_d
         agg_vtype_cols_adt = [f"{col}_adt" for col in self.agg_vtype_cols]
         mvc_filt_adt_agg = mvc_filt_adt.groupby(
             [spatial_level, "mvs_rdtype_nm", "mvs_rdtype", "hour"], as_index=False
         )[agg_vtype_cols_adt].mean()
         return mvc_filt_adt_agg
+
+    # ToDo: Remove the Month-Day Conversion Factor---It's useless.
+    # ToDo: Aggregate by TOD here instead of doing it later in the processing.
+    # ToDo: Be very specific about the order of averaging. Average of average is not the
+    # same as ungrouped average.
 
     def get_mvc_sample_size(self, spatial_level):
         """Get the sample size (# of counters) per `spatial_level`, road type, and
@@ -415,7 +420,7 @@ def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
         CT_HDV_frac=lambda df: df.CT_HDV_dow / df.Total_dow,
     )
 
-    return mvc_agg_dist_imputed_dow_filt
+    return mvc_agg_dist_imputed_dow_filt, mvc_agg_dist_imputed_dow_
 
 
 @timing
@@ -429,6 +434,7 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     now_mntyr = now_mnt + now_yr
     path_out_sta_counts = Path.joinpath(path_interm, "sta_counts_mvc_script_iv.csv")
     path_out_mvc_vmtmix = Path.joinpath(path_output, f"{out_fi}_{now_mntyr}.csv")
+    # path_out_mvc_raw = Path.joinpath(path_output, f"raw_{out_fi}_{now_mntyr}.csv")
 
     mvcvmtmix = MVCVmtMix(min_yr_=min_yr, max_yr_=max_yr)
     all_district_sta_counts = get_min_ss_per_loc(
@@ -437,11 +443,12 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     mvc_agg_dist_imputed = handle_low_district_ss(
         all_district_sta_counts_=all_district_sta_counts, mvcvmtmix_=mvcvmtmix
     )
-    vmtmix_dow = compute_vmtmix_dow(mvc_agg_dist_imputed, mvcvmtmix)
+    vmtmix_dow, mvc_raw = compute_vmtmix_dow(mvc_agg_dist_imputed, mvcvmtmix)
     # TODO: Investigate the minimum sample size needed based on standard deviation.
     all_district_sta_counts.to_csv(path_out_sta_counts, index=False)
 
     vmtmix_dow.to_csv(path_out_mvc_vmtmix, index=False)
+    # mvc_raw.to_csv(path_out_mvc_raw, index=False)
 
     # mvc_agg_dg = mvcvmtmix.agg_mvc_counts(spatial_level="dgcode")
     # mvc_ss_dg = mvcvmtmix.get_mvc_sample_size(spatial_level="dgcode")

@@ -18,7 +18,7 @@ import numpy as np
 path_prj_code = Path(r"C:\Users\a-bibeka\PycharmProjects\FY23_VMT_Mix")
 path_data = Path(
     r"E:\Texas A&M Transportation Institute"
-    r"\TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors\Data"
+    r"\TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors\Data\fy23_vmt_mix"
 )
 path_inp = Path.joinpath(path_data, "input")
 path_county_shp = Path.joinpath(
