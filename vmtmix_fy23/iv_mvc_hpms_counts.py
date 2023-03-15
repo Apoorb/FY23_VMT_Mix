@@ -427,7 +427,7 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     now_mntyr = now_mnt + now_yr
     path_out_sta_counts = Path.joinpath(path_interm, "sta_counts_mvc_script_iv.csv")
     path_out_mvc_vmtmix = Path.joinpath(path_output, f"{out_fi}_{now_mntyr}.csv")
-    # path_out_mvc_raw = Path.joinpath(path_output, f"raw_{out_fi}_{now_mntyr}.csv")
+    path_out_mvc_raw = Path.joinpath(path_output, f"raw_{out_fi}_{now_mntyr}.csv")
     tod_map = {
         "AM": (6, 7, 8),
         "MD": (9, 10, 11, 12, 13, 14, 15),
@@ -446,10 +446,13 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     all_district_sta_counts.to_csv(path_out_sta_counts, index=False)
 
     vmtmix_dow.to_csv(path_out_mvc_vmtmix, index=False)
+    mvc_raw.to_csv(path_out_mvc_raw, index=False)
+
 
 
 if __name__ == "__main__":
     mvc_hpms_cnt(out_fi="mvc_vmtmix", min_yr=2013, max_yr=2019)
+    mvc_hpms_cnt(out_fi="mvc_vmtmix", min_yr=2013, max_yr=2021)
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing iv_mvc_hpms_counts.py\n"

@@ -131,7 +131,7 @@ def clean_mvc_countr(mvc_file):
             format="%m/%d/%Y %I:%M:%S %p",
         )
     mvc_countr_fil = mvc_countr_fil.drop(columns=["start_date", "start_time"])
-    mvc_countr_fil = get_sta_pre_id_suf_cmb(data_=mvc_countr_fil, sub_col="location_id")
+    mvc_countr_fil = get_unq_mvc_stas(data_=mvc_countr_fil, sub_col="location_id")
     return mvc_countr_fil
 
 
@@ -187,11 +187,12 @@ def save_raw_data_as_parquet(mvc_countr_, perm_countr_, mvc_out_fi, perm_out_fi)
         pq.write_table(table_perm_countr, path_perm_countr_pq)
 
 
-def get_sta_pre_id_suf_cmb(data_, sub_col):
-    """Return concatenated station identifiers."""
-    # FixMe: Only keep unique stations. If the data has "ALL", "EB", and "WB".
-    # Just keep "EB" and "WB".
-    ################
+def get_unq_mvc_stas(data_, sub_col):
+    """Only keep unique MVC stations. If the data has "ALL", "EB", and "WBs. Directional
+    counts have "EB", "WB", ... suffixes. While, total counts (sum of directional counts
+    have no suffixes. The following line calls the "dir" for these total counts as "ALL".
+    E.g. Stations BR1702_NB and BR1702_SB have directional counts and station BR1702 has
+    the total counts."""
     data_[["loc_id", "dir"]] = data_[sub_col].str.split("_", expand=True)
     data_["dir"] = data_["dir"].fillna("ALL")
     data_["year_"] = data_.start_datetime.dt.year
@@ -204,8 +205,6 @@ def get_sta_pre_id_suf_cmb(data_, sub_col):
         .agg(cnt_ALL=("has_ALL", "sum"), cnt_dir=("has_dir", "sum"))
         .sort_values(["loc_id", "year_"], ignore_index=True, inplace=False)
     )
-
-    len(stations_cnt)
 
     stations_cnt_1 = stations_cnt.loc[stations_cnt.cnt_ALL == 0]
     stations_cnt_2 = stations_cnt.loc[stations_cnt.cnt_dir == 0]
@@ -223,9 +222,8 @@ def get_sta_pre_id_suf_cmb(data_, sub_col):
     # The location ids + years in stations_cnt_1 and stations_cnt_2 are good as it has
     # either directional or total data, respectively.
     # The location ids + years in stations_cnt_3 need to handled, as
-    # Do some debuggin on PC counts for stations_cnt_3 location_id and year
-
-    station_pivot = pd.pivot_table(
+    # Do some debugging on PC counts for stations_cnt_3 location_id and year
+    station_pc_debug = pd.pivot_table(
         data_,
         index=["year_", "loc_id"],
         values="class2",
@@ -233,14 +231,14 @@ def get_sta_pre_id_suf_cmb(data_, sub_col):
         aggfunc=np.sum,
         fill_value=0,
     ).reset_index()
-    dir_cols = [col for col in station_pivot.columns if col not in ["ALL", "year_"]]
-    station_pivot["ALL_from_dir"] = station_pivot[dir_cols].sum(axis=1)
-    station_pivot["Diff_Cnts"] = station_pivot.ALL - station_pivot.ALL_from_dir
+    dir_cols = [col for col in station_pc_debug.columns if col not in ["ALL", "year_"]]
+    station_pc_debug["ALL_from_dir"] = station_pc_debug[dir_cols].sum(axis=1)
+    station_pc_debug["Diff_Cnts"] = station_pc_debug.ALL - station_pc_debug.ALL_from_dir
     non_zero_loc_ids = stations_cnt_3.loc_id.unique()
-    station_pivot_check = station_pivot.merge(stations_cnt_3, on=["loc_id", "year_"])
+    station_pivot_check = station_pc_debug.merge(stations_cnt_3, on=["loc_id", "year_"])
     assert len(station_pivot_check.loc[lambda df: df.Diff_Cnts > 0]) == 2, (
-        "based on 2021 TxDOT data, only two instances should be there of Total PC (ALL)"
-        " volume exceeding directional volume"
+        "Based on 2021 TxDOT data, only two instances should be there of Total PC (ALL)"
+        " volume exceeding directional volume. Put breakpoint in this line and DEBUG!"
     )
     # Handle duplicate stations.
     unq_sta_df = pd.concat(

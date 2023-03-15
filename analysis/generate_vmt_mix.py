@@ -17,6 +17,9 @@ from vmtmix_fy23 import (
 )
 
 #Fixme: Test script iv and vii for logical consistency
+#Todo: Create graphics from AERR testing
+#Todo: Create a table/ graphics of sample size by counter.
+#Todo: Create basic sample size stats for the counts by vehicle type (1st) --> Add complexity.
 
 @timing
 def main(min_yr, max_yr, now_mntyr):
