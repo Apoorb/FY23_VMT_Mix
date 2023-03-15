@@ -1,7 +1,6 @@
 """
 Use FAF and MOVES national level run VMT Mix to get the dissagregated VMT-Mix
 """
-import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -451,21 +450,19 @@ def norm_vmt_mix_by_tod(mvc_suts_ftype_, txdist_):
 
 
 @timing
-def fin_vmt_mix(in_file, out_file_nm):
+def fin_vmt_mix(in_file_nm, out_file_nm):
     """
     Apply the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
     and normalize the final counts to get the SUT-FT dist.
     """
-    now_yr = str(datetime.datetime.now().year)
-    now_mnt = str(datetime.datetime.now().month).zfill(2)
-    now_mntyr = now_mnt + now_yr
+
     # Set path
     # -----------------------------------------------------------------------------------
-    path_mvc_vmtmix = list(path_output.glob("mvc_vmtmix_*.csv"))[0]
+    path_mvc_vmtmix = list(path_output.glob(in_file_nm))[0]
     path_faf4_su_ct_lh_sh_pct = Path.joinpath(path_interm, "faf4_su_ct_lh_sh_pct.tab")
     path_mvs303defaultsutdist = Path.joinpath(path_interm, "mvs303defaultsutdist.csv")
     path_mvs303fueldist = Path.joinpath(path_interm, "mvs303fueldist.csv")
-    path_fin_vmtmix = Path.joinpath(path_output, f"{out_file_nm}_{now_mntyr}.csv")
+    path_fin_vmtmix = Path.joinpath(path_output, out_file_nm)
     # Read Data
     mvc_vmtmix = pd.read_csv(path_mvc_vmtmix)
     faf4_su_ct_lh_sh_pct = pd.read_csv(path_faf4_su_ct_lh_sh_pct, sep="\t")
@@ -560,7 +557,7 @@ if __name__ == "__main__":
     suf1 = min_yr - 2000
     suf2 = max_yr - 2000
     fin_vmt_mix(
-        in_file=f"mvc_vmtmix_{suf1}_{suf2}",
+        in_file_nm=f"mvc_vmtmix_{suf1}_{suf2}_032023.csv",
         out_file_nm=f"fy23_fin_vmtmix_{suf1}_{suf2}",
     )
     print(
