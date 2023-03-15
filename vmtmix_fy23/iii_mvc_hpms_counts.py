@@ -74,7 +74,6 @@ class MVCVmtMix:
         self._txdist = pd.DataFrame()
         self.mvc = pd.DataFrame()
         self.mvc_cntr_lev = pd.DataFrame()
-        self.conv_aadt_adt_mnth = pd.DataFrame()
         self.conv_aadt2dow_by_vehcat = pd.DataFrame()
 
         # Read/ process relevant data
@@ -95,6 +94,47 @@ class MVCVmtMix:
         mvc_filt_day = mvc_filt_.copy(deep=True)
         mvc_filt_day["tod"] = "day"
         mvc_filt_tod_ = pd.concat([mvc_filt_, mvc_filt_day])
+
+        mvc_tod_debug = mvc_filt_tod_.groupby(
+            [
+                "district",
+                "txdot_dist",
+                "mvs_rdtype_nm",
+                "mvs_rdtype",
+                "year",
+                "tod",
+                "sta_pre_id_suf_fr",
+                "hour",
+            ],
+            as_index=False,
+        ).agg(
+            date_list=("start_datetime", list),
+            hour_cnt=("start_datetime", "count"),
+        )
+        assert all(mvc_tod_debug.hour_cnt <= 2), (
+            "There are unexpected duplicates other than identified below in test1, 2, 3, "
+            "and 4, in some hours. Debug the MVC data for duplicate rows."
+        )
+        mvc_tod_debug_1 = mvc_filt_tod_.groupby(
+            [
+                "district",
+                "txdot_dist",
+                "mvs_rdtype_nm",
+                "mvs_rdtype",
+                "year",
+                "tod",
+                "sta_pre_id_suf_fr",
+            ],
+            as_index=False,
+        ).agg(hour_list=("start_datetime", list), hour_cnt=("hour", "count"))
+        # The following 4 dataframes show 32 rows where counts where collected for
+        # the same hour and year for two different dates. This is why we mean the
+        # counts in TOD and not sum it.
+        test1 = mvc_tod_debug_1.loc[lambda df: (df.tod == "AM") & (df.hour_cnt != 3)]
+        test2 = mvc_tod_debug_1.loc[lambda df: (df.tod == "PM") & (df.hour_cnt != 3)]
+        test3 = mvc_tod_debug_1.loc[lambda df: (df.tod == "MD") & (df.hour_cnt != 7)]
+        test4 = mvc_tod_debug_1.loc[lambda df: (df.tod == "ON") & (df.hour_cnt != 11)]
+
         # Mean Volume for a TOD (and not `hour`).
         mvc_filt_tod_agg_ = mvc_filt_tod_.groupby(
             [
@@ -438,16 +478,30 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     all_district_sta_counts = get_min_ss_per_loc(
         mvcvmtmix_=mvcvmtmix, spatial_level_="district"
     )
+    all_dgcode_sta_counts = get_min_ss_per_loc(
+        mvcvmtmix_=mvcvmtmix, spatial_level_="dgcode"
+    )
+    fin_sta_cnts_used = all_district_sta_counts.merge(
+        mvcvmtmix.dgcodes, on="district"
+    ).merge(
+        all_dgcode_sta_counts,
+        on=["dgcode", "mvs_rdtype_nm"],
+        suffixes=["_dist", "_dg"],
+    )
+    fin_sta_cnts_used["cnts_used"] = fin_sta_cnts_used.min_avg_sta_count_dist.fillna(
+        fin_sta_cnts_used.min_avg_sta_count_dg
+    )
+    fin_sta_cnts_used.sort_values(["txdot_dist", "mvs_rdtype_nm"], inplace=True)
+
     mvc_agg_dist_imputed = handle_low_district_ss(
         all_district_sta_counts_=all_district_sta_counts, mvcvmtmix_=mvcvmtmix
     )
     vmtmix_dow, mvc_raw = compute_vmtmix_dow(mvc_agg_dist_imputed, mvcvmtmix)
     # TODO: Investigate the minimum sample size needed based on standard deviation.
-    all_district_sta_counts.to_csv(path_out_sta_counts, index=False)
+    fin_sta_cnts_used.to_csv(path_out_sta_counts, index=False)
 
     vmtmix_dow.to_csv(path_out_mvc_vmtmix, index=False)
     mvc_raw.to_csv(path_out_mvc_raw, index=False)
-
 
 
 if __name__ == "__main__":
@@ -455,6 +509,6 @@ if __name__ == "__main__":
     mvc_hpms_cnt(out_fi="mvc_vmtmix", min_yr=2013, max_yr=2021)
     print(
         "----------------------------------------------------------------------------\n"
-        "Finished Processing iv_mvc_hpms_counts.py\n"
+        "Finished Processing iii_mvc_hpms_counts.py\n"
         "----------------------------------------------------------------------------\n"
     )

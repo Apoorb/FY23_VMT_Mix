@@ -403,6 +403,6 @@ if __name__ == "__main__":
     faf4_su_ct_lh_sh_pct(out_fi="faf4_su_ct_lh_sh_pct.tab")
     print(
         "----------------------------------------------------------------------------\n"
-        "Finished Processing v_SU_CT_sh_lh_dist.py\n"
+        "Finished Processing iv_SU_CT_sh_lh_dist.py\n"
         "----------------------------------------------------------------------------\n"
     )

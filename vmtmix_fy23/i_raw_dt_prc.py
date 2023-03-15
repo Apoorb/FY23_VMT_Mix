@@ -249,7 +249,7 @@ def get_unq_mvc_stas(data_, sub_col):
         ]
     )
 
-    data_["sta_pre_id_suf_fr"] = data_["loc_id"]
+    data_["sta_pre_id_suf_fr"] = data_[sub_col]
     data_["is_ALL"] = data_["dir"] == "ALL"
     data_1_ = data_.merge(unq_sta_df, on=["year_", "loc_id"])
     # keep_rows is XNOR gate.

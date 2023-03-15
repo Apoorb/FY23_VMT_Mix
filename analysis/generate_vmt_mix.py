@@ -10,16 +10,17 @@ from vmtmix_fy23.utils import timing
 from vmtmix_fy23 import (
     i_raw_dt_prc,
     ii_dow_by_cls_fact_calc,
-    iv_mvc_hpms_counts,
-    v_SU_CT_sh_lh_dist,
-    vi_sut_nd_fuel_mix,
-    vii_vmt_mix_disagg,
+    iii_mvc_hpms_counts,
+    iv_SU_CT_sh_lh_dist,
+    v_sut_nd_fuel_mix,
+    vi_vmt_mix_disagg,
 )
 
-#Fixme: Test script iv and vii for logical consistency
-#Todo: Create graphics from AERR testing
-#Todo: Create a table/ graphics of sample size by counter.
-#Todo: Create basic sample size stats for the counts by vehicle type (1st) --> Add complexity.
+# Fixme: Test script iv and vii for logical consistency
+# Todo: Create graphics from AERR testing
+# Todo: Create a table/ graphics of sample size by counter.
+# Todo: Create basic sample size stats for the counts by vehicle type (1st) --> Add complexity.
+
 
 @timing
 def main(min_yr, max_yr, now_mntyr):
@@ -38,20 +39,20 @@ def main(min_yr, max_yr, now_mntyr):
     )
     # Compute the HPMS category counts from the MVC data and apply the above conversion
     # factors.
-    iv_mvc_hpms_counts.mvc_hpms_cnt(
+    iii_mvc_hpms_counts.mvc_hpms_cnt(
         out_fi=f"mvc_vmtmix_{suf1}_{suf2}", min_yr=min_yr, max_yr=max_yr
     )
     # Get the SU and CT, Sh and Lh splits from FAF4 assignment and metadata using
     # ERG methodology and VIUS 2002 factor.
-    v_SU_CT_sh_lh_dist.faf4_su_ct_lh_sh_pct(out_fi="faf4_su_ct_lh_sh_pct.tab")
+    iv_SU_CT_sh_lh_dist.faf4_su_ct_lh_sh_pct(out_fi="faf4_su_ct_lh_sh_pct.tab")
     # Get the SUT dist within HPMS and the fuel dist from MOVES default database.
-    vi_sut_nd_fuel_mix.mvs_sut_nd_fuel_mx(
+    v_sut_nd_fuel_mix.mvs_sut_nd_fuel_mx(
         fueldist_outfi="mvs303fueldist.csv",
         sut_hpms_dist_outfi="mvs303defaultsutdist.csv",
     )
     # Appy the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
     # and normalize the final counts to get the SUT-FT dist.
-    vii_vmt_mix_disagg.fin_vmt_mix(
+    vi_vmt_mix_disagg.fin_vmt_mix(
         in_file_nm=f"mvc_vmtmix_{suf1}_{suf2}_{now_mntyr}.csv",
         out_file_nm=f"fy23_fin_vmtmix_{suf1}_{suf2}_{now_mntyr}.csv",
     )
