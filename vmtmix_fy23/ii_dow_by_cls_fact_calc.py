@@ -164,7 +164,9 @@ def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
     }
     with switchoff_chainedass_warn:
         atr_db_all_fil["dowagg"] = atr_db_all_fil.dow_nm.map(map_dow)
-        dow_adt = atr_db_all_fil.groupby([Selected_region, "dowagg"]).mean().reset_index()
+        dow_adt = (
+            atr_db_all_fil.groupby([Selected_region, "dowagg"]).mean().reset_index()
+        )
     df_adt = aadt.merge(
         dow_adt,
         how="left",
@@ -181,9 +183,7 @@ def conv_aadt_adt_mnth_dow_by_vehcat(out_fi, min_yr=2013, max_yr=2019):
         df_adt["f_m_d_Total"] = df_adt.Total_dow / df_adt.Total
     # with pd.option_context("display.max_columns", 16):
     #     print(df_adt.describe())
-    df_adt.to_csv(
-        Path.joinpath(path_interm, out_fi), sep="\t", index=False
-    )
+    df_adt.to_csv(Path.joinpath(path_interm, out_fi), sep="\t", index=False)
 
 
 @timing

@@ -14,11 +14,7 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
-from vmtmix_fy23.utils import (
-    path_interm,
-    connect_to_server_db,
-    timing
-)
+from vmtmix_fy23.utils import path_interm, connect_to_server_db, timing
 
 
 def get_mvs303samvehpop() -> pd.DataFrame:
@@ -255,7 +251,7 @@ def get_mvs303defaultsutdist() -> pd.DataFrame:
     return mvs303defact_relvnt
 
 
-def get_mvs303fueldist(anlyr = [1990] + list(range(2000, 2065, 5))):
+def get_mvs303fueldist(anlyr=[1990] + list(range(2000, 2065, 5))):
     """
     Read default MOVES fuel type distribution by model year from 1960 to 2060.
     Read default MOVES age distribution for the analysis years.
@@ -341,7 +337,8 @@ def mvs_sut_nd_fuel_mx(fueldist_outfi, sut_hpms_dist_outfi):
 
 if __name__ == "__main__":
     mvs_sut_nd_fuel_mx(
-        fueldist_outfi="mvs303fueldist.csv", sut_hpms_dist_outfi="mvs303defaultsutdist.csv"
+        fueldist_outfi="mvs303fueldist.csv",
+        sut_hpms_dist_outfi="mvs303defaultsutdist.csv",
     )
     print(
         "----------------------------------------------------------------------------\n"

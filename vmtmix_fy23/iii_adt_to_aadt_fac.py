@@ -150,9 +150,7 @@ def conv_aadt_adt_mnth_dow(out_fi, min_yr=2013, max_yr=2019):
 
     df_adt["f_m_d"] = df_adt.ADT_mnth_dow / df_adt.AADT
     df_adt.f_m_d.describe()
-    df_adt.to_csv(
-        Path.joinpath(path_interm, out_fi), sep="\t", index=False
-    )
+    df_adt.to_csv(Path.joinpath(path_interm, out_fi), sep="\t", index=False)
 
 
 @timing

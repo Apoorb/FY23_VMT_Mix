@@ -2,12 +2,18 @@
 Run all the steps for VMT-Mix generation.
 """
 import warnings
-warnings.simplefilter(action='ignore', category=Warning)
+
+warnings.simplefilter(action="ignore", category=Warning)
 
 from vmtmix_fy23.utils import timing
 from vmtmix_fy23 import (
-    i_raw_dt_prc, ii_dow_by_cls_fact_calc, iii_adt_to_aadt_fac, iv_mvc_hpms_counts,
-    v_SU_CT_sh_lh_dist, vi_sut_nd_fuel_mix, vii_vmt_mix_disagg
+    i_raw_dt_prc,
+    ii_dow_by_cls_fact_calc,
+    iii_adt_to_aadt_fac,
+    iv_mvc_hpms_counts,
+    v_SU_CT_sh_lh_dist,
+    vi_sut_nd_fuel_mix,
+    vii_vmt_mix_disagg,
 )
 
 
@@ -19,7 +25,7 @@ def main(min_yr, max_yr):
     # map road types to MOVES, and save data to parquet for faster loading.
     i_raw_dt_prc.raw_dt_prc(
         MVC_file="MVC_2013_21_received_on_030922",
-        PERM_file="PERM_CLASS_BY_HR_2013_2021"
+        PERM_file="PERM_CLASS_BY_HR_2013_2021",
     )
     # Create DOW by veh class factors that will be applied to the AADT from ATR data
     # by vehicle class.
@@ -43,11 +49,14 @@ def main(min_yr, max_yr):
     # Get the SUT dist within HPMS and the fuel dist from MOVES default database.
     vi_sut_nd_fuel_mix.mvs_sut_nd_fuel_mx(
         fueldist_outfi="mvs303fueldist.csv",
-        sut_hpms_dist_outfi="mvs303defaultsutdist.csv"
+        sut_hpms_dist_outfi="mvs303defaultsutdist.csv",
     )
     # Appy the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
     # and normalize the final counts to get the SUT-FT dist.
-    vii_vmt_mix_disagg.fin_vmt_mix(out_file_nm=f"fy23_fin_vmtmix_{suf1}_{suf2}")
+    vii_vmt_mix_disagg.fin_vmt_mix(
+        in_file=f"mvc_vmtmix_{suf1}_{suf2}",
+        out_file_nm=f"fy23_fin_vmtmix_{suf1}_{suf2}",
+    )
 
 
 if __name__ == "__main__":

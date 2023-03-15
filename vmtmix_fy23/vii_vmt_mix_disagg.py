@@ -5,7 +5,6 @@ import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from itertools import chain
 import geopandas as gpd
 import os
 import sys
@@ -16,7 +15,7 @@ from vmtmix_fy23.utils import (
     path_output,
     path_txdot_districts_shp,
     ChainedAssignent,
-    timing
+    timing,
 )
 
 switchoff_chainedass_warn = ChainedAssignent()
@@ -34,7 +33,7 @@ def prc_mvc(mvc_vmtmix_):
             "mvs_rdtype_nm",
             "mvs_rdtype",
             "dowagg",
-            "hour",
+            "tod",
         ],
         value_vars=[
             "MC_dow",
@@ -56,7 +55,7 @@ def prc_mvc(mvc_vmtmix_):
 
 def add_yr_mod_cols_mvc(mvc_vmtmix_long_filt_, mvs303defaultsutdist_):
     """Add analysis year column to the MVC data that does not have year column for
-     the vehicle types that were not merged with national default data."""
+    the vehicle types that were not merged with national default data."""
     yearIDs = [
         1990,
         2000,
@@ -91,7 +90,7 @@ def add_yr_mod_cols_mvc(mvc_vmtmix_long_filt_, mvs303defaultsutdist_):
             "mvs_rdtype_nm",
             "mvs_rdtype",
             "dowagg",
-            "hour",
+            "tod",
             "yearID",
             "modsutname",
             "modsut_vmt_est",
@@ -174,8 +173,12 @@ def prc_faf4_fac(faf4_su_ct_lh_sh_pct_: pd.DataFrame) -> pd.DataFrame:
     return faf4_filt
 
 
-def fac_sutdist_natdef(mvc_: pd.DataFrame, mvc_vtype_cat: dict,
-                       mvs303defaultsutdist_: dict, modhpmsvehcat: dict):
+def fac_sutdist_natdef(
+    mvc_: pd.DataFrame,
+    mvc_vtype_cat: dict,
+    mvs303defaultsutdist_: dict,
+    modhpmsvehcat: dict,
+):
     """
     The initial part of the code filters out the MVC data to just keep the HPMS vehicle
     categories specified in the `mvc_vtype_cat` dict. We filter `mvs303defaultsutdist_` to
@@ -250,7 +253,7 @@ def fac_sutdist_natdef(mvc_: pd.DataFrame, mvc_vtype_cat: dict,
             "mvs_rdtype_nm",
             "mvs_rdtype",
             "dowagg",
-            "hour",
+            "tod",
             "yearID",
             "modsutname",
             "modsut_vmt_est",
@@ -286,7 +289,7 @@ def apply_faf4_fac(mvc_su_ct_, faf4_fac_):
             "mvs_rdtype_nm",
             "mvs_rdtype",
             "dowagg",
-            "hour",
+            "tod",
             "yearID",
             "modsutname",
             "modsut_vmt_est",
@@ -366,9 +369,9 @@ def apply_fuel_dist(mvc_suts_, mvs303fueldist_):
     mvc_suts_ftype_debug = mvc_suts_ftype.groupby(
         ["district", "mvs_rdtype_nm", "dowagg", "sourceTypeName", "fuelTypeDesc"],
         as_index=False,
-    ).agg(hour_set=("hour", set), yearID_set=("yearID", set))
+    ).agg(tod_set=("tod", set), yearID_set=("yearID", set))
     mvc_suts_ftype_debug[["sourceTypeName", "fuelTypeDesc"]].drop_duplicates()
-    assert all(mvc_suts_ftype_debug.hour_set == set(range(0, 24)))
+    assert all(mvc_suts_ftype_debug.tod_set == set(["AM", "PM", "MD", "ON", "day"]))
     assert all(
         mvc_suts_ftype_debug.yearID_set
         == set((1990, 2000, 2005)) | set(range(2010, 2065, 5))
@@ -380,22 +383,12 @@ def apply_fuel_dist(mvc_suts_, mvs303fueldist_):
     return mvc_suts_ftype
 
 
-def filt_to_tod(mvc_suts_ftype_, tod_map_, txdist_):
+def norm_vmt_mix_by_tod(mvc_suts_ftype_, txdist_):
     """
     Filter the values from `apply_fuel_dist` to different TOD hours and normalize the
     counts to get the Count distribution or the "VMT-Mix".
     """
-    tod_lng_map = {}
-    for key, vals in tod_map_.items():
-        for val in vals:
-            tod_lng_map[val] = key
-    mvc_suts_ftype_["tod"] = mvc_suts_ftype_.hour.map(tod_lng_map)
-
-    mvc_suts_ftype_day = mvc_suts_ftype_.copy(deep=True)
-    mvc_suts_ftype_day["tod"] = "day"
-    mvc_suts_ftype_tod_ = pd.concat([mvc_suts_ftype_, mvc_suts_ftype_day])
-
-    mvc_suts_ftype_tod_agg_ = mvc_suts_ftype_tod_.groupby(
+    mvc_suts_ftype_tod_agg_ = mvc_suts_ftype_.groupby(
         [
             "dgcode",
             "district",
@@ -458,7 +451,7 @@ def filt_to_tod(mvc_suts_ftype_, tod_map_, txdist_):
 
 
 @timing
-def fin_vmt_mix(out_file_nm="fin_vmtmix"):
+def fin_vmt_mix(in_file, out_file_nm):
     """
     Apply the FAF4, and MOVES dist to the HPMS counts, filter data to different TODs,
     and normalize the final counts to get the SUT-FT dist.
@@ -467,7 +460,7 @@ def fin_vmt_mix(out_file_nm="fin_vmtmix"):
     now_mnt = str(datetime.datetime.now().month).zfill(2)
     now_mntyr = now_mnt + now_yr
     # Set path
-    #-----------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------
     path_mvc_vmtmix = list(path_output.glob("mvc_vmtmix_*.csv"))[0]
     path_faf4_su_ct_lh_sh_pct = Path.joinpath(path_interm, "faf4_su_ct_lh_sh_pct.tab")
     path_mvs303defaultsutdist = Path.joinpath(path_interm, "mvs303defaultsutdist.csv")
@@ -541,20 +534,10 @@ def fin_vmt_mix(out_file_nm="fin_vmtmix"):
 
     # Filter to TOD and Estimate VMT-Mix
     # ----------------------------------------------------------------------------------
-    tod_map = {
-        "AM": (6, 7, 8),
-        "MD": (9, 10, 11, 12, 13, 14, 15),
-        "PM": (16, 17, 18),
-        "ON": (19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5),
-    }
-    hours_ = list(chain(*tod_map.values()))
-    hours_.sort()
-    assert (set(hours_) == set(mvc_suts_ftype.hour)) & (
-        len(hours_) == len(set(mvc_suts_ftype.hour))
-    )
+
     assert len(set(mvc_suts_ftype.district)) == 25
-    mvc_suts_ftype_tod = filt_to_tod(
-        mvc_suts_ftype_=mvc_suts_ftype, tod_map_=tod_map, txdist_=txdist
+    mvc_suts_ftype_tod = norm_vmt_mix_by_tod(
+        mvc_suts_ftype_=mvc_suts_ftype, txdist_=txdist
     )
     assert len(set(mvc_suts_ftype_tod.district)) == 25
     mvc_suts_ftype_tod = mvc_suts_ftype_tod.sort_values(
@@ -572,7 +555,14 @@ def fin_vmt_mix(out_file_nm="fin_vmtmix"):
 
 
 if __name__ == "__main__":
-    fin_vmt_mix()
+    min_yr = 2013
+    max_yr = 2019
+    suf1 = min_yr - 2000
+    suf2 = max_yr - 2000
+    fin_vmt_mix(
+        in_file=f"mvc_vmtmix_{suf1}_{suf2}",
+        out_file_nm=f"fy23_fin_vmtmix_{suf1}_{suf2}",
+    )
     print(
         "----------------------------------------------------------------------------\n"
         "Finished Processing vii_vmt_mix_disagg.py\n"

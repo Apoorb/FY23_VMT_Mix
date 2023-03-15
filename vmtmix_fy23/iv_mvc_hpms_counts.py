@@ -20,7 +20,7 @@ from vmtmix_fy23.utils import (
     path_txdot_districts_shp,
     ChainedAssignent,
     get_snake_case_dict,
-    timing
+    timing,
 )
 
 switchoff_chainedass_warn = ChainedAssignent()
@@ -50,7 +50,12 @@ class MVCVmtMix:
     agg_vtype_cols = ["MC", "PC", "PT_LCT", "Bus", "SU_MH_RT_HDV", "CT_HDV"]
 
     def __init__(
-        self, path_inp=path_inp, path_interm=path_interm, min_yr_=2013, max_yr_=2019
+        self,
+        tod_map_,
+        path_inp=path_inp,
+        path_interm=path_interm,
+        min_yr_=2013,
+        max_yr_=2019,
     ):
         # Set input paths
         self.path_mvc_pq = Path.joinpath(
@@ -63,19 +68,67 @@ class MVCVmtMix:
             path_interm, "conv_aadt2dow_by_vehcat.tab"
         )
         self.path_dgcodes_marty = Path.joinpath(path_inp, "district_dgcode_map.xlsx")
+        self.tod_map_ = tod_map_
         self.min_yr_ = min_yr_
         self.max_yr_ = max_yr_
         self._txdist = pd.DataFrame()
         self.mvc = pd.DataFrame()
+        self.mvc_cntr_lev = pd.DataFrame()
         self.conv_aadt_adt_mnth = pd.DataFrame()
         self.conv_aadt2dow_by_vehcat = pd.DataFrame()
 
         # Read/ process relevant data
+        self.dgcodes = pd.read_excel(self.path_dgcodes_marty)
         self.set_mvc()
         self.set_txdist()
-        self.set_conv_aadt_adt_mnth()
         self.set_conv_aadt2dow_by_vehcat()
-        self.dgcodes = pd.read_excel(self.path_dgcodes_marty)
+
+    def cntr_lev_agg(self):
+        """
+        Mean MVC counts by TOD and then by across year for each counter."""
+        tod_lng_map = {}
+        for key, vals in self.tod_map_.items():
+            for val in vals:
+                tod_lng_map[val] = key
+        mvc_filt_ = self.mvc.copy()
+        mvc_filt_["tod"] = self.mvc.hour.map(tod_lng_map)
+        mvc_filt_day = mvc_filt_.copy(deep=True)
+        mvc_filt_day["tod"] = "day"
+        mvc_filt_tod_ = pd.concat([mvc_filt_, mvc_filt_day])
+        # Mean Volume for a TOD (and not `hour`).
+        mvc_filt_tod_agg_ = mvc_filt_tod_.groupby(
+            [
+                "district",
+                "txdot_dist",
+                "mvs_rdtype_nm",
+                "mvs_rdtype",
+                "year",
+                "tod",
+                "sta_pre_id_suf_fr",
+            ],
+            as_index=False,
+        )[self.agg_vtype_cols].mean()
+        # Mean Volume for a station across `year`.
+        mvc_filt_tod_agg_1_ = mvc_filt_tod_agg_.groupby(
+            [
+                "district",
+                "txdot_dist",
+                "mvs_rdtype_nm",
+                "mvs_rdtype",
+                "tod",
+                "sta_pre_id_suf_fr",
+            ],
+            as_index=False,
+        )[self.agg_vtype_cols].mean()
+        # Add District Group codes to be able to group the stations across different
+        # districts.
+        mvc_filt_tod_agg_1_ = mvc_filt_tod_agg_1_.merge(
+            self.dgcodes, on=["district"], how="left"
+        )
+        assert set(mvc_filt_tod_agg_1_.dgcode) == set(
+            self.dgcodes.dgcode
+        ), "Need all DGCODES for aggregation."
+        return mvc_filt_tod_agg_1_
 
     def set_mvc(self):
         """
@@ -129,30 +182,13 @@ class MVCVmtMix:
             mvc_1["SU_MH_RT_HDV"] = mvc_1[suhdv_cols].sum(axis=1)
             mvc_1["CT_HDV"] = mvc_1[cthdv_cols].sum(axis=1)
         self.mvc = mvc_1
+        self.mvc_cntr_lev = self.cntr_lev_agg()
 
     def set_txdist(self):
         """Read TxDOT district shapefile."""
         txdist_tmp = gpd.read_file(path_txdot_districts_shp)
         self.txdist = txdist_tmp[["DIST_NBR", "DIST_NM"]].rename(
             columns={"DIST_NBR": "txdot_dist", "DIST_NM": "district"}
-        )
-
-    def set_conv_aadt_adt_mnth(self):
-        """Read the AADT to ADT by month and day of the week conversion factor. We
-        will be using the inverse of this factor."""
-        conv_aadt_adt_mnth = pd.read_csv(self.path_conv_aadt2mnth_dow, sep="\t")
-        conv_aadt_adt_mnth = conv_aadt_adt_mnth.rename(
-            columns=get_snake_case_dict(conv_aadt_adt_mnth)
-        )
-        conv_aadt_adt_mnth = conv_aadt_adt_mnth.merge(
-            self.txdist, on=["district"], how="outer"
-        )
-        conv_aadt_adt_mnth["inv_f_m_d"] = (
-            1 / conv_aadt_adt_mnth.f_m_d
-        )  # Convert DOW, Month ADT to AADT.
-
-        self.conv_aadt_adt_mnth = conv_aadt_adt_mnth.filter(
-            items=["txdot_dist", "district", "mnth_nm", "dow_nm", "inv_f_m_d"]
         )
 
     def set_conv_aadt2dow_by_vehcat(self):
@@ -164,68 +200,25 @@ class MVCVmtMix:
             self.txdist, on=["district"], how="outer"
         )
 
-    def filt_mvc_counts(self):
-        """Filter MVC counts to """
-        mvc_filt_ = self.mvc.groupby(
-            [
-                "sta_pre_id_suf_fr",
-                "txdot_dist",
-                "mvs_rdtype_nm",
-                "mvs_rdtype",
-                "mnth_nm",
-                "date_",
-                "year",
-                "dow_nm",
-                "hour",
-            ],
-            as_index=False,
+    def region_mvc_agg(self, spatial_level="district"):
+        #     """
+        #     Aggregate (average) the counts to `spatial_level` (district or district group),
+        #     road type, and hour. Convert the count to AADT before aggregating.
+        #     """
+        mvc_cntr_lev = self.mvc_cntr_lev
+        mvc_cntr_lev_1 = mvc_cntr_lev.groupby(
+            [spatial_level, "mvs_rdtype_nm", "mvs_rdtype", "tod"], as_index=False
         )[self.agg_vtype_cols].mean()
-        mvc_filt_adt_ = mvc_filt_.merge(
-            self.conv_aadt_adt_mnth, on=["txdot_dist", "mnth_nm", "dow_nm"], how="left"
-        ).merge(self.dgcodes, on=["district"], how="left")
-        assert set(mvc_filt_adt_.dgcode) == set(
-            self.dgcodes.dgcode
-        ), "Need all DGCODES for aggregation."
-        return mvc_filt_adt_
-
-    def agg_mvc_counts(self, spatial_level="district"):
-    #     """
-    #     Aggregate (average) the counts to `spatial_level` (district or district group), road type, and hour.
-    #     Convert the count to AADT before aggregating.
-    #     """
-        mvc_filt_adt = self.filt_mvc_counts()
-    #     with switchoff_chainedass_warn:
-    #         mvc_filt_adt["MC_adt"] = mvc_filt_adt["MC"] * mvc_filt_adt.inv_f_m_d
-    #         mvc_filt_adt["PC_adt"] = mvc_filt_adt["PC"] * mvc_filt_adt.inv_f_m_d
-    #         mvc_filt_adt["PT_LCT_adt"] = mvc_filt_adt["PT_LCT"] * mvc_filt_adt.inv_f_m_d
-    #         mvc_filt_adt["Bus_adt"] = mvc_filt_adt["Bus"] * mvc_filt_adt.inv_f_m_d
-    #         mvc_filt_adt["SU_MH_RT_HDV_adt"] = (
-    #             mvc_filt_adt["SU_MH_RT_HDV"] * mvc_filt_adt.inv_f_m_d
-    #         )
-    #         mvc_filt_adt["CT_HDV_adt"] = mvc_filt_adt["CT_HDV"] * mvc_filt_adt.inv_f_m_d
-        agg_vtype_cols_adt = [f"{col}_adt" for col in self.agg_vtype_cols]
-        mvc_filt_adt_agg = mvc_filt_adt.groupby(
-            [spatial_level, "mvs_rdtype_nm", "mvs_rdtype", "hour"], as_index=False
-        )[agg_vtype_cols_adt].mean()
-        return mvc_filt_adt_agg
-
-    # ToDo: Remove the Month-Day Conversion Factor---It's useless.
-    # ToDo: Aggregate by TOD here instead of doing it later in the processing.
-    # ToDo: Be very specific about the order of averaging. Average of average is not the
-    # same as ungrouped average.
+        return mvc_cntr_lev_1
 
     def get_mvc_sample_size(self, spatial_level):
         """Get the sample size (# of counters) per `spatial_level`, road type, and
-         hour."""
-        mvc_filt_adt = self.filt_mvc_counts()
-        mvc_filt_adt_sample_size = mvc_filt_adt.groupby(
-            [spatial_level, "mvs_rdtype_nm", "mvs_rdtype", "year", "hour"],
+        tod."""
+        mvc_sample_size = self.mvc_cntr_lev.groupby(
+            [spatial_level, "mvs_rdtype_nm", "mvs_rdtype", "tod"],
             as_index=False,
         ).sta_pre_id_suf_fr.nunique()
-        mvc_filt_adt_sample_size_agg_ = mvc_filt_adt_sample_size.groupby(
-            [spatial_level, "mvs_rdtype_nm", "mvs_rdtype", "hour"], as_index=False
-        ).sta_pre_id_suf_fr.mean()
-        return mvc_filt_adt_sample_size_agg_
+        return mvc_sample_size
 
 
 def get_min_ss_per_loc(mvcvmtmix_, spatial_level_):
@@ -298,7 +291,7 @@ def handle_low_district_ss(all_district_sta_counts_, mvcvmtmix_):
     )
     good_sta_ss = all_district_sta_counts_1.loc[lambda df: df.min_avg_sta_count >= 5]
     low_sta_ss = all_district_sta_counts_1.loc[lambda df: df.min_avg_sta_count.isna()]
-    mvc_agg_dist = mvcvmtmix_.agg_mvc_counts(spatial_level="district")
+    mvc_agg_dist = mvcvmtmix_.region_mvc_agg(spatial_level="district")
 
     good_ss_grps = set(good_sta_ss[["district", "mvs_rdtype_nm"]].apply(tuple, axis=1))
     low_ss_grps = set(low_sta_ss[["district", "mvs_rdtype_nm"]].apply(tuple, axis=1))
@@ -310,7 +303,7 @@ def handle_low_district_ss(all_district_sta_counts_, mvcvmtmix_):
         mvcvmtmix_.dgcodes, on="district", how="left"
     )
 
-    mvc_agg_dg = mvcvmtmix_.agg_mvc_counts(spatial_level="dgcode")
+    mvc_agg_dg = mvcvmtmix_.region_mvc_agg(spatial_level="dgcode")
     mvc_agg_dg_with_dup_dist = mvc_agg_dg.merge(mvcvmtmix_.dgcodes, on="dgcode")
     mvc_agg_dist_low_sta_ss = mvc_agg_dg_with_dup_dist.groupby(
         ["district", "mvs_rdtype_nm"]
@@ -320,13 +313,13 @@ def handle_low_district_ss(all_district_sta_counts_, mvcvmtmix_):
     mvc_agg_dist_imputed_ = pd.concat(
         [mvc_agg_dist_good_sta_ss, mvc_agg_dist_low_sta_ss]
     )
-    assert len(mvc_agg_dist_imputed_) == 25 * 5 * 24
+    assert len(mvc_agg_dist_imputed_) == 25 * 5 * 5
     assert all(
         mvc_agg_dist_imputed_.groupby(
-            ["district", "mvs_rdtype_nm", "hour"]
-        ).PT_LCT_adt.count()
+            ["district", "mvs_rdtype_nm", "tod"]
+        ).PT_LCT.count()
         == 1
-    ), "Expect  1 unique count for the 2400 rows."
+    ), "Expect  1 unique count for the 625 rows."
     return mvc_agg_dist_imputed_
 
 
@@ -378,12 +371,12 @@ def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
     )
 
     mvc_agg_dist_imputed_dow_ = mvc_agg_dist_imputed_dow_.assign(
-        MC_dow=lambda df: df.MC_adt * df.f_m_d_MC,
-        PC_dow=lambda df: df.PC_adt * df.f_m_d_PC,
-        PT_LCT_dow=lambda df: df.PT_LCT_adt * df.f_m_d_PT_LCT,
-        Bus_dow=lambda df: df.Bus_adt * df.f_m_d_Bus,
-        SU_MH_RT_HDV_dow=lambda df: df.SU_MH_RT_HDV_adt * df.f_m_d_HDV,
-        CT_HDV_dow=lambda df: df.CT_HDV_adt * df.f_m_d_HDV,
+        MC_dow=lambda df: df.MC * df.f_m_d_MC,
+        PC_dow=lambda df: df.PC * df.f_m_d_PC,
+        PT_LCT_dow=lambda df: df.PT_LCT * df.f_m_d_PT_LCT,
+        Bus_dow=lambda df: df.Bus * df.f_m_d_Bus,
+        SU_MH_RT_HDV_dow=lambda df: df.SU_MH_RT_HDV * df.f_m_d_HDV,
+        CT_HDV_dow=lambda df: df.CT_HDV * df.f_m_d_HDV,
         Total_dow=lambda df: (
             df.MC_dow
             + df.PC_dow
@@ -402,7 +395,7 @@ def compute_vmtmix_dow(mvc_agg_dist_imputed_, mvcvmtmix_):
             "mvs_rdtype_nm",
             "mvs_rdtype",
             "dowagg",
-            "hour",
+            "tod",
             "MC_dow",
             "PC_dow",
             "PT_LCT_dow",
@@ -435,8 +428,13 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     path_out_sta_counts = Path.joinpath(path_interm, "sta_counts_mvc_script_iv.csv")
     path_out_mvc_vmtmix = Path.joinpath(path_output, f"{out_fi}_{now_mntyr}.csv")
     # path_out_mvc_raw = Path.joinpath(path_output, f"raw_{out_fi}_{now_mntyr}.csv")
-
-    mvcvmtmix = MVCVmtMix(min_yr_=min_yr, max_yr_=max_yr)
+    tod_map = {
+        "AM": (6, 7, 8),
+        "MD": (9, 10, 11, 12, 13, 14, 15),
+        "PM": (16, 17, 18),
+        "ON": (19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5),
+    }
+    mvcvmtmix = MVCVmtMix(tod_map, min_yr_=min_yr, max_yr_=max_yr)
     all_district_sta_counts = get_min_ss_per_loc(
         mvcvmtmix_=mvcvmtmix, spatial_level_="district"
     )
@@ -448,13 +446,6 @@ def mvc_hpms_cnt(out_fi, min_yr, max_yr):
     all_district_sta_counts.to_csv(path_out_sta_counts, index=False)
 
     vmtmix_dow.to_csv(path_out_mvc_vmtmix, index=False)
-    # mvc_raw.to_csv(path_out_mvc_raw, index=False)
-
-    # mvc_agg_dg = mvcvmtmix.agg_mvc_counts(spatial_level="dgcode")
-    # mvc_ss_dg = mvcvmtmix.get_mvc_sample_size(spatial_level="dgcode")
-    # filling_dgcode_sta_counts = get_minf_ss_per_loc(
-    #     mvcvmtmix_=mvcvmtmix, spatial_level_="dgcode"
-    # )
 
 
 if __name__ == "__main__":

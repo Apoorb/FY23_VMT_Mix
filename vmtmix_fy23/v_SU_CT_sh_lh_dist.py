@@ -265,7 +265,9 @@ class TrucksDist:
         return dict(vmt_dist_tx=self.vmt_dist_tx, vmt_dist_txdist=self.vmt_dist_txdist)
 
     @staticmethod
-    def compute_vmt_dist(ass_faf4_, erg_crc_a88_vius2002_SULhT_pct=0.103) -> pd.DataFrame:
+    def compute_vmt_dist(
+        ass_faf4_, erg_crc_a88_vius2002_SULhT_pct=0.103
+    ) -> pd.DataFrame:
         """
         Static method, so does not have an instance of the class (self) in it.
 
@@ -389,9 +391,7 @@ def faf4_su_ct_lh_sh_pct(out_fi):
     Get the SU and CT, Sh and Lh splits from FAF4 assignment and metadata using
     ERG methodology and VIUS 2002 factor.
     """
-    truckdist = TrucksDist(
-        path_faf_=path_faf, path_inp_=path_inp
-    )
+    truckdist = TrucksDist(path_faf_=path_faf, path_inp_=path_inp)
     truckdist.read_data()
     truckdist.prc_meta_faf4()
     vmt_dist_dict = truckdist.get_vmt_dist()
