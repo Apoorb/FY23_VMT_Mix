@@ -458,7 +458,7 @@ def fin_vmt_mix(in_file_nm, out_file_nm):
 
     # Set path
     # -----------------------------------------------------------------------------------
-    path_mvc_vmtmix = list(path_output.glob(in_file_nm))[0]
+    path_mvc_vmtmix = Path.joinpath(path_output, in_file_nm)
     path_faf4_su_ct_lh_sh_pct = Path.joinpath(path_interm, "faf4_su_ct_lh_sh_pct.tab")
     path_mvs303defaultsutdist = Path.joinpath(path_interm, "mvs303defaultsutdist.csv")
     path_mvs303fueldist = Path.joinpath(path_interm, "mvs303fueldist.csv")
