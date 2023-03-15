@@ -62,7 +62,7 @@ if __name__ == "__main__":
     now_yr = str(datetime.datetime.now().year)
     now_mnt = str(datetime.datetime.now().month).zfill(2)
     now_mntyr = now_mnt + now_yr
-    # main(min_yr=2013, max_yr=2019, now_mntyr=now_mntyr)
+    main(min_yr=2013, max_yr=2019, now_mntyr=now_mntyr)
     main(min_yr=2013, max_yr=2021, now_mntyr=now_mntyr)
     main(min_yr=2017, max_yr=2021, now_mntyr=now_mntyr)
     main(min_yr=2017, max_yr=2019, now_mntyr=now_mntyr)
