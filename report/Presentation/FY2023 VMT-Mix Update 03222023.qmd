@@ -1,0 +1,169 @@
+---
+title: "FY2023 VMT-Mix Update"
+author: Apoorba Bibeka
+institute: Texas A&M Transportation Institute
+format: 
+  beamer:
+      navigation: horizontal
+output:
+  beamer_presentation:
+    toc: true
+    toc_depth: 2
+    slide_level: 2
+editor: visual
+pdf-engine: xelatex
+---
+
+## Outline
+
+-   FY23 VMT-Mix Update
+
+    -   Updated Python package structure and documentation
+
+    -   Methodology Changes w.r.t FY22 VMT-Mix (Used for Trends)
+
+    -   Distribution Changes w.r.t FY22 VMT-Mix (Used for Trends)
+
+    -   Potential Reason for changes in VMT-Mix
+
+-   Impact of VMT-Mix on Emission Inventories (EIs) On-road/ running Emissions:
+
+    -   Statewide for Criteria Air Pollutants (CAPs)
+
+    -   Non-attainment counties w.r.t applicable CAPs
+    
+    -   Sensitivity of EIs to VMT-Mix
+
+-   Next Steps
+
+# FY23 VMT-Mix Update
+
+## Updated Python package structure and documentation
+
+Changes:
+
+-   Added numpy docstring to all function and classes in the package.
+
+-   Added readme to provide an overview of the modules.
+
+-   Created Sphinx documentation for the module. It's available here: <https://apoorb.github.io/FY23_VMT_Mix>.
+
+Reasons:
+
+-   Future proofs the VMT-Mix development.
+
+-   Allows other team members to be able to pick-up the VMT-Mix development in the future.
+
+## Methodology Changes
+
+The following updates are made to the FY23 VMT-Mix:
+
+1.  Duplicate stations were removed from the vehicle classification counts.
+
+    -   Vehicle classification count had data both by direction and location. Created checks to only use one.
+    
+2.  Directly using the counts, instead of converting them to annual counts first.
+
+    -   The process was adding unnecessary complexity to the methodology.
+    
+3.  Also using data for 2020 and 2021. FY22 VMT-Mix only uses 2013 to 2019 data.
+
+    -   Incorporated the VCC data from the most recent years.
+    
+    -   Waiting for the 2022 VCC data, which likely would be available in July 2023.
+
+## Changes w.r.t FY22 VMT-Mix (Used for Trends)
+
+-   Which counties see a lot of change: is the starting value quite small?
+
+-   Figure 1: Range of change for PC
+
+-   Figure 2: Range of change for 62, 61
+
+-   Are other SUTs+FTs even important?
+
+## Potential Reason for changes in VMT-Mix
+
+Where in the method
+
+# Impact of VMT-Mix on EIs
+
+## FY23 VMT-Mix vs. FY22 VMT-Mix Statewide EI Impact
+
+::: columns
+::: {.column width="50%"}
+Insignificant percent change between the FY22 and FY23 VMT-Mix.
+:::
+
+::: {.column width="50%"}
+![Statewide Change in Emission (FY23 vs. FY22 VMT-Mix)](statewide_fy23_fy22_PerDiff.png){alt="Statewide Change in Emission (FY23 vs. Pre-FY21 VMT-Mix)" fig-align="center" width="95%"}
+:::
+:::
+
+## FY23 VMT-Mix vs. FY22 Ozone Non-Attainment Area NOx EI
+
+```{=tex}
+\begingroup
+\fontsize{6pt}{7pt}\selectfont
+```
+::: columns
+::: {.column width="30%"}
+This table shows the absolute NOx emissions. The difference and percent difference in the next slides are w.r.t to these values. Thing to note for next slide is that even if **counties such as Waller and Liberty have around 10% change**, this likely **will not affect conformity** as their **total emissions are much lower.**
+:::
+
+::: {.column width="70%"}
+|   COG  |   County   | NOx Emission 2020 + FY22 VMT-Mix |
+|:------:|:----------:|:--------------------------------:|
+|  HGAC  |   Harris   |               36.95              |
+| NCTCOG |   Dallas   |               23.92              |
+|  AACOG |    Bexar   |               21.17              |
+| NCTCOG |   Tarrant  |               15.77              |
+| RIOCOG |   El Paso  |               11.7               |
+| NCTCOG |   Collin   |                6.8               |
+| NCTCOG |   Denton   |               6.74               |
+|  HGAC  | Montgomery |               5.85               |
+| NCTCOG |    Ellis   |               4.85               |
+|  HGAC  |  Fort Bend |               4.67               |
+|  HGAC  |  Brazoria  |               3.75               |
+| NCTCOG |   Parker   |               3.73               |
+| NCTCOG |   Kaufman  |               3.65               |
+| NCTCOG |   Johnson  |               3.57               |
+|  HGAC  |  Chambers  |               3.03               |
+|  HGAC  |  Galveston |               2.06               |
+| NCTCOG |    Wise    |               1.89               |
+|  HGAC  |   Waller   |               1.77               |
+|  HGAC  |   Liberty  |               1.44               |
+| NCTCOG |  Rockwall  |                1.3               |
+:::
+:::
+
+```{=tex}
+\endgroup
+```
+## FY23 VMT-Mix vs. Pre-FY21 VMT-Mix Ozone Non-Attainment Area NOx EI Impact
+
+Bexar (AACOG) has a ~7.4% increase, Tarrant (NCTCOG) has ~3.4%, and Dallas has ~0.25% increase. All other counties have no change or a reduction.
+
+::: columns
+::: {.column width="50%"}
+![FY23 vs. FY22 VMT-Mix Impact on Ozone Non-Attainment Counties (Absolute)](nox_nonatt_fy23_fy22_Diff.png){fig-align="center" width="95%"}
+:::
+
+::: {.column width="50%"}
+![FY23 vs. FY22 VMT-Mix Impact on Ozone Non-Attainment Counties (%)](nox_nonatt_fy23_fy22_PerDiff.png){fig-align="center"}
+:::
+:::
+
+## FY23 VMT-Mix vs. Pre-FY21 VMT-Mix PM10 Non-Attainment Area EI Impact
+
+-   El Paso county is the only county currently (March 2023) that is in non-conformity for PM10.
+
+-   The total PM10 running emissions for El Paso based on FY22 VMT-Mix is 1.13 short-tons/day.
+
+-   The emission decrease by 0.03 short-tons/day; a ~2.9% decrease.
+
+## Sensitivity of EIs to VMT-Mix
+
+# Next Steps
+
+-    Uncertainty in Estimates and Need for Literature Review
