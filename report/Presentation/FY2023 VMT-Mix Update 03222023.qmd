@@ -1,6 +1,6 @@
 ---
 title: "FY2023 VMT-Mix Update"
-author: Apoorba Bibeka
+author: Emission and Energy Modeling Group
 institute: Texas A&M Transportation Institute
 format: 
   beamer:
@@ -16,7 +16,7 @@ pdf-engine: xelatex
 
 ## Outline
 
--   FY23 VMT-Mix Update
+-   FY23 VMT-Mix Update Overview
 
     -   Updated Python package structure and documentation
 
@@ -36,7 +36,7 @@ pdf-engine: xelatex
 
 -   Conclusion and Next Steps
 
-# FY23 VMT-Mix Update
+# FY23 VMT-Mix Update Overview
 
 ## Updated Python package structure and documentation
 
@@ -74,7 +74,7 @@ The following updates are made to the FY23 VMT-Mix:
 
 ## Distribution Changes w.r.t FY22 VMT-Mix
 
-The VMT-Mix table has 60,000 rows (25 \* 5 \* 5 \*4 \* 24) is developed for the following:
+The VMT-Mix table has 60,000 rows (25 \* 5 \* 5 \*4 \* 24). It is developed for the following:
 
 -   25 districts,
 
@@ -86,11 +86,11 @@ The VMT-Mix table has 60,000 rows (25 \* 5 \* 5 \*4 \* 24) is developed for the 
 
 -   24 SUT+FT combinations.
 
-For 59,400 of the rows the percent difference is under 66%. For 54,000 (90%) of to the rows the percent difference is between-25% and 28%. And, for 50% of the rows the percent difference is between -6% and 9%.
+For 59,400 of the rows the percent difference is under 66%. For 54,000 (90%) of to the rows the percent difference is between \$-\$25% and 28%. And, for 50% of the rows the percent difference is between \$-\$6% and 9%.
 
 ## Distribution Changes w.r.t FY22 VMT-Mix (Cont.)
 
-The following figure shows that 25^th^ to 75^th^ percentile values are -6% to 9%. 5^th^ to 95^th^ percentiles are -25% and 28%. Indicating for the majority of the VMT-Mix row's there is little change between FY22 and FY23 VMT-Mix.
+The following figure shows that 25^th^ to 75^th^ percentile values are $-$6% to 9%. 5th to 95th percentiles are$-\$25% and 28%. Indicating for the majority of the VMT-Mix row's there is little change between FY22 and FY23 VMT-Mix.
 
 ![VMT-Mix FY22 vs. FY23 % Difference](vmt_mix_perdiff_fy23_fy22_ecdf.png){alt="VMT-Mix FY22 vs. FY23 % Difference" fig-alt="VMT-Mix FY22 vs. FY23 % Difference" width="65%"}
 
