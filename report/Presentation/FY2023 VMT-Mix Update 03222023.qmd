@@ -10,7 +10,6 @@ output:
     toc: true
     toc_depth: 3
     slide_level: 2
-editor: visual
 pdf-engine: xelatex
 ---
 
@@ -86,24 +85,24 @@ The VMT-Mix table has 60,000 rows (25 \* 5 \* 5 \*4 \* 24). It is developed for 
 
 -   24 SUT+FT combinations.
 
-For 59,400 of the rows the percent difference is under 66%. For 54,000 (90%) of to the rows the percent difference is between \$-\$25% and 28%. And, for 50% of the rows the percent difference is between \$-\$6% and 9%.
+For 59,400 of the rows the percent difference is under $66\%$. For 54,000 (90%) of to the rows the percent difference is between $-25\%$ and $28\%$. And, for 50% of the rows the percent difference is between $-6\%$ and $9\%$.
 
 ## Distribution Changes w.r.t FY22 VMT-Mix (Cont.)
 
-The following figure shows that 25^th^ to 75^th^ percentile values are $-$6% to 9%. 5th to 95th percentiles are$-\$25% and 28%. Indicating for the majority of the VMT-Mix row's there is little change between FY22 and FY23 VMT-Mix.
+The following figure shows that 25^th^ to 75^th^ percentile values are $-6\%$ to $9\%$. 5th to 95th percentiles are $-25\%$ and $28\%$. Indicating for the majority of the VMT-Mix row's there is little change between FY22 and FY23 VMT-Mix.
 
 ![VMT-Mix FY22 vs. FY23 % Difference](vmt_mix_perdiff_fy23_fy22_ecdf.png){alt="VMT-Mix FY22 vs. FY23 % Difference" fig-alt="VMT-Mix FY22 vs. FY23 % Difference" width="65%"}
 
 ## Distribution Changes w.r.t FY22 VMT-Mix (Cont.)
 
-The 600 rows with over 66% increase belong to the following districts: San Angelo, Bryan, Corpus Christi, Lubbock, Brownwood, San Antonio, Wichita Falls, Amarillo, Waco, and Dallas. Following shows the breakdown by SUT for these districts:
+The 600 rows with over $66\%$ increase belong to the following districts: San Angelo, Bryan, Corpus Christi, Lubbock, Brownwood, San Antonio, Wichita Falls, Amarillo, Waco, and Dallas. Following shows the breakdown by SUT for these districts:
 
 -   Bryan, Waco, San Angelo, San Antonio, Brownwood: CLhT, CShT
 -   San Angelo: MC
 -   Amarillo, Lubbock, San Angelo, Dallas, Wichita Falls: OB, TB, SB
 -   Bryan, Brownwood: RT, MH, SULhT, SUShT
 
-200 rows have over 50% reduction. Waco, Brownwood, Tyler, Paris see reduction in OB, TB, and SB. Tyler and Paris see redution in MC. And, Atlana has redcution in CLhT and CShT.
+200 rows have over $50\%$ reduction. Waco, Brownwood, Tyler, Paris see reduction in OB, TB, and SB. Tyler and Paris see redution in MC. And, Atlana has redcution in CLhT and CShT.
 
 # Impact of VMT-Mix on EIs
 
@@ -148,14 +147,14 @@ Insignificant percent change in statwide emissions between the FY22 and FY23 VMT
 | HGAC   | Liberty    | 1.44                             | 1.33                             | -0.11           | -7.91                      |
 | NCTCOG | Rockwall   | 1.3                              | 1.26                             | -0.04           | -2.81                      |
 
-This table shows the absolute NOx emissions and the difference and percent difference b/w FY22 and FY23 VMT-Mix. Thing to note for next slide is that even if **counties such as Waller and Liberty have around 10% change**, this likely **will not affect conformity** as their **total emissions are much lower.**
+This table shows the absolute NOx emissions and the difference and percent difference b/w FY22 and FY23 VMT-Mix. Thing to note for next slide is that even if **counties such as Waller and Liberty have around** $10\%$ **change**, this likely **will not affect conformity** as their **total emissions are much lower.**
 
 ```{=tex}
 \endgroup
 ```
 ## FY23 VMT-Mix vs. Pre-FY21 VMT-Mix Ozone Non-Attainment Area NOx EI Impact
 
-Bexar (AACOG) has a \~7.4% increase, Tarrant (NCTCOG) has \~3.4%, and Dallas has \~0.25% increase. All other counties have no change or a reduction.
+Bexar (AACOG) has a $\sim 7.4%$ increase, Tarrant (NCTCOG) has $\sim 3.4%$, and Dallas has $\sim 0.25%$ increase. All other counties have no change or a reduction.
 
 ::: columns
 ::: {.column width="50%"}
@@ -163,7 +162,7 @@ Bexar (AACOG) has a \~7.4% increase, Tarrant (NCTCOG) has \~3.4%, and Dallas has
 :::
 
 ::: {.column width="50%"}
-![FY23 vs. FY22 VMT-Mix Impact on Ozone Non-Attainment Counties (%)](nox_nonatt_fy23_fy22_PerDiff.png){fig-align="center"}
+![FY23 vs. FY22 VMT-Mix Impact on Ozone Non-Attainment Counties (%)](nox_nonatt_fy23_fy22_PerDiff.png){fig-align="center" width="95%"}
 :::
 :::
 
@@ -173,7 +172,7 @@ Bexar (AACOG) has a \~7.4% increase, Tarrant (NCTCOG) has \~3.4%, and Dallas has
 
 -   The total PM10 running emissions for El Paso based on FY22 VMT-Mix is 1.13 short-tons/day.
 
--   The emission decrease by 0.03 short-tons/day; a \~2.9% decrease.
+-   The emission decrease by 0.03 short-tons/day; a $\sim 2.9\%$ decrease.
 
 ## Counties with Highest and Lowest changes in NOx
 
@@ -217,7 +216,7 @@ Counties with lowest percent change in NOx due to VMT-Mix update.
 
 -   For the counties with most reduction in emission, reduction in the diesel combination trucks was key in reducing the overall emission.
 
--   Diesel combination trucks have \~40 times higher emission rate than gasoline passenger cars.
+-   Diesel combination trucks have $\sim 40$ times higher emission rate than gasoline passenger cars.
 
 ## Conclusion and Next Steps
 
@@ -225,16 +224,16 @@ Counties with lowest percent change in NOx due to VMT-Mix update.
 
 -   Not much change in emissions between FY22 and FY23 VMT-Mix.
 
--   Certain pollutants emission rates vary a lot by SUT+FT (diesel CLhT, CShT, RT... for NOx). Any error in VMT-Mix will amplify a lot depending on the SUT+FT being affected.
+-   Certain pollutants emission rates vary a lot by SUT+FT (diesel CLhT, CShT, RT... for NOx). Any error in VMT-Mix will amplify emissions a lot depending on the SUT+FT being affected.
 
 -   From a national perspective, using defaults versus state-specific methodology to get VMTs by SUT+FT can lead to very different emissions.
 
-    -   Need to have uniformity in VMT-Mix estimation across states.
+    -   Need to have **uniformity in VMT-Mix estimation across states.**
 
--   Given the high sensitivity to VMT-Mix, there is need to have a scientific method for VMT-Mix estimation.
+-   Given the high sensitivity to VMT-Mix, there is **need to have a scientific method** for VMT-Mix estimation **instead of relying on standard operating procedures.**
 
 ### Next Steps
 
 -   Work on Memo for Task 5.3 VMT-Mix.
 
--   Finalize literature review.
+-   Finalize literature review on VMT-MIx development methodologies.
