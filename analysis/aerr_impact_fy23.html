@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Apoorb">
+<meta name="dcterms.date" content="2023-03-28">
 
 <title>Test the 2020 AERR emission quantity sensitivity b/w old and new VMT Mix</title>
 <style>
@@ -40,10 +42,36 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#housekeeping" id="toc-housekeeping" class="nav-link active" data-scroll-target="#housekeeping">Housekeeping</a></li>
+  <li><a href="#process-aerr20-sut-ft-emission-and-activity-to-get-county-level-vmt-and-emission-rates" id="toc-process-aerr20-sut-ft-emission-and-activity-to-get-county-level-vmt-and-emission-rates" class="nav-link" data-scroll-target="#process-aerr20-sut-ft-emission-and-activity-to-get-county-level-vmt-and-emission-rates">Process AERR20 SUT-FT Emission and Activity to get County-level VMT and Emission Rates</a>
+  <ul class="collapse">
+  <li><a href="#get-county-level-vmt-and-filter-to-vmt-activity." id="toc-get-county-level-vmt-and-filter-to-vmt-activity." class="nav-link" data-scroll-target="#get-county-level-vmt-and-filter-to-vmt-activity.">Get county-level VMT and filter to VMT activity.</a></li>
+  <li><a href="#back-calculate-emission-on-raod-emission-rate." id="toc-back-calculate-emission-on-raod-emission-rate." class="nav-link" data-scroll-target="#back-calculate-emission-on-raod-emission-rate.">Back-calculate Emission On-raod Emission Rate.</a></li>
+  </ul></li>
+  <li><a href="#load-fy22-and-f23-vmt-mix-created-by-axb" id="toc-load-fy22-and-f23-vmt-mix-created-by-axb" class="nav-link" data-scroll-target="#load-fy22-and-f23-vmt-mix-created-by-axb">Load FY22 and F23 VMT-Mix Created by AxB</a></li>
+  <li><a href="#merge-aerr-2020-processed-data-with-new-vmt-mixes" id="toc-merge-aerr-2020-processed-data-with-new-vmt-mixes" class="nav-link" data-scroll-target="#merge-aerr-2020-processed-data-with-new-vmt-mixes">Merge AERR 2020 Processed Data with New VMT-Mixes</a>
+  <ul class="collapse">
+  <li><a href="#get-contribution-of-different-sut-ft-for-overall-emissions" id="toc-get-contribution-of-different-sut-ft-for-overall-emissions" class="nav-link" data-scroll-target="#get-contribution-of-different-sut-ft-for-overall-emissions">Get contribution of different SUT-FT for overall emissions</a></li>
+  </ul></li>
+  <li><a href="#tables-and-figures-emission-and-vmt" id="toc-tables-and-figures-emission-and-vmt" class="nav-link" data-scroll-target="#tables-and-figures-emission-and-vmt">Tables and Figures Emission and VMT</a>
+  <ul class="collapse">
+  <li><a href="#statewide-impact" id="toc-statewide-impact" class="nav-link" data-scroll-target="#statewide-impact">Statewide impact</a></li>
+  <li><a href="#non-attainment-area-impact" id="toc-non-attainment-area-impact" class="nav-link" data-scroll-target="#non-attainment-area-impact">Non-attainment area impact</a></li>
+  </ul></li>
+  <li><a href="#county-emission-inc-w.r.t-to-vmt-mix-and-vmt-change-emission-rate" id="toc-county-emission-inc-w.r.t-to-vmt-mix-and-vmt-change-emission-rate" class="nav-link" data-scroll-target="#county-emission-inc-w.r.t-to-vmt-mix-and-vmt-change-emission-rate">County Emission Inc w.r.t to VMT-Mix and VMT Change + Emission Rate</a></li>
+  <li><a href="#vmt-mix-comp" id="toc-vmt-mix-comp" class="nav-link" data-scroll-target="#vmt-mix-comp">VMT-Mix Comp</a></li>
+  <li><a href="#rpython-example" id="toc-rpython-example" class="nav-link" data-scroll-target="#rpython-example">R+Python Example</a></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -55,7 +83,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Apoorb </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 28, 2023</p>
+    </div>
+  </div>
   
     
   </div>
@@ -63,31 +103,24 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="created-by-apoorb" class="level2">
-<h2 class="anchored" data-anchor-id="created-by-apoorb">Created by: Apoorb</h2>
-<p>Questions: 1. What is the statewide impact of change in VMT-Mix? 2. What is the impact on non-attainment areas w.r.t pollutant of interest? 3. What are the patterns in VMT-Mix difference? What is the likely cause? 4. What is the story??????</p>
-</section>
 <section id="housekeeping" class="level2">
 <h2 class="anchored" data-anchor-id="housekeeping">Housekeeping</h2>
 <div class="cell" data-execution_count="1">
 <pre class="python3 cell-code"><code>import sys
-
-sys.path.append(r"C:\Users\a-bibeka\PycharmProjects\FY23_VMT_Mix")
-</code></pre>
-</div>
-<div class="cell" data-execution_count="2">
-<pre class="python3 cell-code"><code>import pathlib
+import pathlib
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+sys.path.append(r"C:\Users\a-bibeka\PycharmProjects\FY23_VMT_Mix")
 from vmtmix_fy23.utils import path_county_shp
 </code></pre>
 </div>
 <p>Set Paths</p>
-<div class="cell" data-execution_count="3">
+<div class="cell" data-execution_count="2">
 <pre class="python3 cell-code"><code>path_aerr20_csvs = Path(
     r"E:\Texas A&amp;M Transportation Institute\TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors\Data\fy23_vmt_mix\Input\aerr20_output"
 )
@@ -103,7 +136,7 @@ path_vmtmix_fy23_13_21 = Path(
 </code></pre>
 </div>
 <p>Analysis FIPS</p>
-<div class="cell" data-execution_count="4">
+<div class="cell" data-execution_count="3">
 <pre class="python3 cell-code"><code>gdf_county = gpd.read_file(path_county_shp)
 district_map = gdf_county[["TXDOT_DIST", "FIPS_ST_CN"]].astype(int)
 
@@ -122,14 +155,14 @@ district_map_anly = district_map.loc[
 </section>
 <section id="process-aerr20-sut-ft-emission-and-activity-to-get-county-level-vmt-and-emission-rates" class="level2">
 <h2 class="anchored" data-anchor-id="process-aerr20-sut-ft-emission-and-activity-to-get-county-level-vmt-and-emission-rates">Process AERR20 SUT-FT Emission and Activity to get County-level VMT and Emission Rates</h2>
-<div class="cell" data-execution_count="5">
+<div class="cell" data-execution_count="4">
 <pre class="python3 cell-code"><code>sutft_act = pd.read_csv(path_sutft_act)
 suft_emis = pd.read_csv(path_sutft_emis)
 </code></pre>
 </div>
 <section id="get-county-level-vmt-and-filter-to-vmt-activity." class="level3">
 <h3 class="anchored" data-anchor-id="get-county-level-vmt-and-filter-to-vmt-activity.">Get county-level VMT and filter to VMT activity.</h3>
-<div class="cell" data-execution_count="6">
+<div class="cell" data-execution_count="5">
 <pre class="python3 cell-code"><code>sutft_vmt = sutft_act.loc[sutft_act.mvs_act_type == "vmt"]
 sutft_vmt = sutft_vmt.rename(columns={"activity": "vmt"})
 sutft_vmt["vmt_agg"] = sutft_vmt.groupby(
@@ -166,17 +199,17 @@ sutft_vmt = sutft_vmt.filter(
 </section>
 <section id="back-calculate-emission-on-raod-emission-rate." class="level3">
 <h3 class="anchored" data-anchor-id="back-calculate-emission-on-raod-emission-rate.">Back-calculate Emission On-raod Emission Rate.</h3>
-<div class="cell" data-execution_count="7">
+<div class="cell" data-execution_count="6">
 <pre class="python3 cell-code"><code>suft_emis.process_lab.unique()
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <pre><code>array(['Running_Exh', 'Start_Exh', 'Crank_Run_Exh', 'Crank_Start_Exh',
        'Crank_Ext_Idle', 'Ext_Idle_Exh', 'Aux_Power_Exh',
        'Evap_Permeation', 'Evap_Fuel_Vent', 'Evap_Fuel_Leak', 'Brakewear',
        'Tirewear'], dtype=object)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="8">
+<div class="cell" data-execution_count="7">
 <pre class="python3 cell-code"><code># Note that 'pollutant_id' and 'short_name_mvs3' are different from 'eis_poll_nei17' and 'short_name_nei17'. 'short_name_mvs3' for instance has PM10 exhaust, brakewear, and tirewear. While NEI combines the three. I am removing MOVES pollutant for this analysis.
 suft_emis_1 = (
     suft_emis.loc[
@@ -213,12 +246,12 @@ suft_emis_1 = (
 )
 </code></pre>
 </div>
-<div class="cell" data-execution_count="9">
+<div class="cell" data-execution_count="8">
 <pre class="python3 cell-code"><code>suft_emis.loc[
     lambda df: df.eis_poll_nei17 == "PM10-PRI", ["eis_poll_nei17", "short_name_mvs3"]
 ].drop_duplicates()
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
@@ -252,7 +285,7 @@ suft_emis_1 = (
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="10">
+<div class="cell" data-execution_count="9">
 <pre class="python3 cell-code"><code>suft_emis.loc[
     lambda df: (
         df.eis_poll_nei17.isin(
@@ -263,7 +296,7 @@ suft_emis_1 = (
     ["eis_poll_nei17", "process_lab"],
 ].drop_duplicates().sort_values(["eis_poll_nei17", "process_lab"])
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
@@ -512,7 +545,7 @@ suft_emis_1 = (
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="11">
+<div class="cell" data-execution_count="10">
 <pre class="python3 cell-code"><code>suft_emis.loc[
     lambda df: (
         df.eis_poll_nei17.isin(
@@ -523,7 +556,7 @@ suft_emis_1 = (
     ["eis_poll_nei17", "process_lab"],
 ].drop_duplicates().sort_values(["eis_poll_nei17", "process_lab"])
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
 
@@ -637,13 +670,13 @@ suft_emis_1 = (
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="12">
+<div class="cell" data-execution_count="11">
 <pre class="python3 cell-code"><code>suft_emis.loc[
     lambda df: (df.eis_poll_nei17 == "VOC") &amp; (df.road_type_id != 1),
     ["eis_poll_nei17", "process_lab"],
 ].drop_duplicates()
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
 
@@ -687,7 +720,7 @@ suft_emis_1 = (
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="13">
+<div class="cell" data-execution_count="12">
 <pre class="python3 cell-code"><code>suft_emis_vmt = suft_emis_1.merge(
     sutft_vmt,
     on=[
@@ -703,7 +736,7 @@ suft_emis_1 = (
 )
 </code></pre>
 </div>
-<div class="cell" data-execution_count="14">
+<div class="cell" data-execution_count="13">
 <pre class="python3 cell-code"><code>suft_emis_vmt_onroad = suft_emis_vmt.loc[
     lambda df: (df.road_type_id != 1) &amp; (df.vmt != 0)
 ]
@@ -712,7 +745,7 @@ suft_emis_vmt_onroad["emission_rate_calc"] = (
 )
 </code></pre>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_22872\1773013509.py:4: SettingWithCopyWarning: 
+<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_34020\1773013509.py:4: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -721,7 +754,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 </div>
 </div>
 <p>Filter to Analysis FIPS and get Dennis’s VMT-Mix from the Data</p>
-<div class="cell" data-execution_count="15">
+<div class="cell" data-execution_count="14">
 <pre class="python3 cell-code"><code>suft_emis_vmt_onroad_anly = suft_emis_vmt_onroad.loc[
     lambda df: df.fips.isin(analysis_fips)
 ]
@@ -734,13 +767,13 @@ suft_emis_vmt_onroad_anly["vmt_mix_dp"] = (
 </section>
 <section id="load-fy22-and-f23-vmt-mix-created-by-axb" class="level2">
 <h2 class="anchored" data-anchor-id="load-fy22-and-f23-vmt-mix-created-by-axb">Load FY22 and F23 VMT-Mix Created by AxB</h2>
-<div class="cell" data-execution_count="16">
+<div class="cell" data-execution_count="15">
 <pre class="python3 cell-code"><code>vmtmix_fy22_13_19 = pd.read_csv(path_vmtmix_fy22_13_19)
 vmtmix_fy23_13_21 = pd.read_csv(path_vmtmix_fy23_13_21)
 </code></pre>
 </div>
 <p>Process FY22 2013 – 2019 VMT-Mix and add suffix.</p>
-<div class="cell" data-execution_count="17">
+<div class="cell" data-execution_count="16">
 <pre class="python3 cell-code"><code>vmtmix_fy22_13_19 = vmtmix_fy22_13_19.merge(district_map_anly, on="txdot_dist")
 assert (
     set(vmtmix_fy22_13_19.fips.unique()).symmetric_difference(set(analysis_fips))
@@ -765,7 +798,7 @@ vmtmix_fy22_13_19_filt = vmtmix_fy22_13_19_filt.filter(
 )
 </code></pre>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_22872\4134271923.py:13: SettingWithCopyWarning: 
+<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_34020\4134271923.py:13: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -774,7 +807,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 </div>
 </div>
 <p>Process FY23 2013 – 2021 VMT-Mix and add suffix.</p>
-<div class="cell" data-execution_count="18">
+<div class="cell" data-execution_count="17">
 <pre class="python3 cell-code"><code>vmtmix_fy23_13_21 = vmtmix_fy23_13_21.merge(district_map_anly, on="txdot_dist")
 assert (
     set(vmtmix_fy23_13_21.fips.unique()).symmetric_difference(set(analysis_fips))
@@ -799,7 +832,7 @@ vmtmix_fy23_13_21_filt = vmtmix_fy23_13_21_filt.filter(
 )
 </code></pre>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_22872\3699093946.py:13: SettingWithCopyWarning: 
+<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_34020\3699093946.py:13: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -810,10 +843,10 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 </section>
 <section id="merge-aerr-2020-processed-data-with-new-vmt-mixes" class="level2">
 <h2 class="anchored" data-anchor-id="merge-aerr-2020-processed-data-with-new-vmt-mixes">Merge AERR 2020 Processed Data with New VMT-Mixes</h2>
-<div class="cell" data-execution_count="19">
+<div class="cell" data-execution_count="18">
 <pre class="python3 cell-code"><code>suft_emis_vmt_onroad_anly.columns
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>Index(['county', 'fips', 'year_id', 'road_type_id', 'roadtype_lab',
        'eis_poll_nei17', 'short_name_nei17', 'source_type_id', 'fuel_type_id',
        'emission_quant', 'activity_type_id', 'mvs_act_type',
@@ -822,7 +855,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
       dtype='object')</code></pre>
 </div>
 </div>
-<div class="cell" data-tags="[&quot;Merge AERR with VMT-Mix&quot;]" data-execution_count="20">
+<div class="cell" data-tags="[&quot;Merge AERR with VMT-Mix&quot;]" data-execution_count="19">
 <pre class="python3 cell-code"><code>suft_emis_vmt_onroad_anly_1 = suft_emis_vmt_onroad_anly.merge(
     vmtmix_fy22_13_19_filt,
     on=["fips", "road_type_id", "source_type_id", "fuel_type_id"],
@@ -898,7 +931,7 @@ suft_emis_vmt_onroad_anly_1["emission_quant_dp"] = (
 )
 </code></pre>
 </div>
-<div class="cell" data-execution_count="21">
+<div class="cell" data-execution_count="20">
 <pre class="python3 cell-code"><code>suft_emis_vmt_onroad_anly_1.loc[
     lambda df: (df.fips == 48113) &amp; (df.short_name_nei17 == "NOx")
 ].groupby("roadtype_lab").agg(
@@ -908,7 +941,7 @@ suft_emis_vmt_onroad_anly_1["emission_quant_dp"] = (
     vmt_fy23=("vmt_fy23", "sum"),
 )
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 
 
@@ -964,7 +997,7 @@ suft_emis_vmt_onroad_anly_1["emission_quant_dp"] = (
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="22">
+<div class="cell" data-execution_count="21">
 <pre class="python3 cell-code"><code>emis_comp_pol = (
     suft_emis_vmt_onroad_anly_1.loc[
         lambda df: df.eis_poll_nei17.isin(
@@ -1013,16 +1046,16 @@ emis_comp_pol_cnty = emis_comp_pol.assign(
 </code></pre>
 </div>
 <p>Output file</p>
-<div class="cell" data-execution_count="23">
+<div class="cell" data-execution_count="22">
 <pre class="python3 cell-code"><code>path_out = Path.joinpath(path_vmtmix_fy22_13_19.parent, "QC", "aerr_vmt_mix_impact.csv")
 emis_comp_pol_cnty.to_csv(path_out)
 </code></pre>
 </div>
-<div class="cell" data-execution_count="24">
+<div class="cell" data-execution_count="23">
 <pre class="python3 cell-code"><code>pd.options.display.float_format = "{:,.5f}".format
 </code></pre>
 </div>
-<div class="cell" data-execution_count="25">
+<div class="cell" data-execution_count="24">
 <pre class="python3 cell-code"><code>emis_comp_pol_nox = emis_comp_pol_cnty.loc[
     lambda df: (df.eis_poll_nei17.isin(["NOX"]) &amp; (df.fips == 48353))
 ][
@@ -1040,7 +1073,7 @@ emis_comp_pol_cnty.to_csv(path_out)
 ].sum()
 emis_comp_pol_nox
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div class="cell-output cell-output-display" data-execution_count="24">
 <pre><code>vmt_mix_dp                      4.00000
 vmt_mix_fy22                    4.00000
 vmt_mix_fy23                    4.00000
@@ -1055,7 +1088,7 @@ dtype: float64</code></pre>
 </div>
 <section id="get-contribution-of-different-sut-ft-for-overall-emissions" class="level3">
 <h3 class="anchored" data-anchor-id="get-contribution-of-different-sut-ft-for-overall-emissions">Get contribution of different SUT-FT for overall emissions</h3>
-<div class="cell" data-execution_count="26">
+<div class="cell" data-execution_count="25">
 <pre class="python3 cell-code"><code>filt_emis_cmb = suft_emis_vmt_onroad_anly_1.loc[
     lambda df: df.eis_poll_nei17.isin(
         ["CO", "SO2", "NOX", "VOC", "CO2", "PM10-PRI", "PM25-PRI", 71432]
@@ -1069,13 +1102,13 @@ filt_emis_cmb["emission_quant_diff_fy23_fy22"] = (
 )
 </code></pre>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_22872\741351983.py:6: SettingWithCopyWarning: 
+<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_34020\741351983.py:6: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
 See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
   filt_emis_cmb["emission_quant_diff_fy23_dp"] = (
-C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_22872\741351983.py:9: SettingWithCopyWarning: 
+C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_34020\741351983.py:9: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -1083,9 +1116,10 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   filt_emis_cmb["emission_quant_diff_fy23_fy22"] = (</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="27">
-<pre class="python3 cell-code"><code>filt_emis_cmb.columns</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="27">
+<div class="cell" data-execution_count="26">
+<pre class="python3 cell-code"><code>filt_emis_cmb.columns
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="26">
 <pre><code>Index(['county', 'fips', 'year_id', 'road_type_id', 'roadtype_lab',
        'eis_poll_nei17', 'short_name_nei17', 'source_type_id', 'fuel_type_id',
        'emission_quant', 'activity_type_id', 'mvs_act_type',
@@ -1097,7 +1131,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
       dtype='object')</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="28">
+<div class="cell" data-execution_count="27">
 <pre class="python3 cell-code"><code>rdtype_sutft_contr_fy23_dp = pd.pivot_table(
     filt_emis_cmb,
     index=["eis_poll_nei17", "county", "fips", "district"],
@@ -1297,7 +1331,7 @@ rdtype_sutft_contr_fy23_dp1[
 )
 </code></pre>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_22872\974488314.py:13: SettingWithCopyWarning: 
+<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_34020\974488314.py:13: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -1305,7 +1339,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   rdtype_sutft_contr_fy23_dp1[</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="29">
+<div class="cell" data-execution_count="28">
 <pre class="python3 cell-code"><code>np.allclose(
     rdtype_sutft_contr_fy23_dp1[
         [
@@ -1402,11 +1436,11 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
     100,
 )
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="28">
 <pre><code>True</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="30">
+<div class="cell" data-execution_count="29">
 <pre class="python3 cell-code"><code>rdtype_sutft_contr_fy23_fy22 = pd.pivot_table(
     filt_emis_cmb,
     index=["eis_poll_nei17", "county", "fips", "district"],
@@ -1606,7 +1640,7 @@ rdtype_sutft_contr_fy23_fy22_1[
 )
 </code></pre>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_22872\1495726720.py:13: SettingWithCopyWarning: 
+<pre><code>C:\Users\a-bibeka\AppData\Local\Temp\ipykernel_34020\1495726720.py:13: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -1614,7 +1648,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   rdtype_sutft_contr_fy23_fy22_1[</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="31">
+<div class="cell" data-execution_count="30">
 <pre class="python3 cell-code"><code>np.allclose(
     rdtype_sutft_contr_fy23_fy22_1[
         [
@@ -1710,18 +1744,18 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
     100,
 )
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="31">
+<div class="cell-output cell-output-display" data-execution_count="30">
 <pre><code>False</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="32">
+<div class="cell" data-execution_count="31">
 <pre class="python3 cell-code"><code>path_out = Path.joinpath(
     path_vmtmix_fy22_13_19.parent, "QC", "rdtype_sutft_contr_fy23_dp.csv"
 )
 rdtype_sutft_contr_fy23_dp1.to_csv(path_out)
 </code></pre>
 </div>
-<div class="cell" data-execution_count="33">
+<div class="cell" data-execution_count="32">
 <pre class="python3 cell-code"><code>path_out = Path.joinpath(
     path_vmtmix_fy22_13_19.parent, "QC", "rdtype_sutft_contr_fy23_fy22.csv"
 )
@@ -1734,9 +1768,10 @@ rdtype_sutft_contr_fy23_fy22_1.to_csv(path_out)
 <h2 class="anchored" data-anchor-id="tables-and-figures-emission-and-vmt">Tables and Figures Emission and VMT</h2>
 <section id="statewide-impact" class="level3">
 <h3 class="anchored" data-anchor-id="statewide-impact">Statewide impact</h3>
-<div class="cell" data-execution_count="34">
-<pre class="python3 cell-code"><code>emis_comp_pol_cnty.columns</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div class="cell" data-execution_count="33">
+<pre class="python3 cell-code"><code>emis_comp_pol_cnty.columns
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="33">
 <pre><code>Index(['eis_poll_nei17', 'county', 'fips', 'district', 'vmt_mix_dp',
        'vmt_mix_fy22', 'vmt_mix_fy23', 'vmt_dp', 'vmt_fy22', 'vmt_fy23',
        'emission_quant_dp', 'emission_quant_fy22', 'emission_quant_fy23',
@@ -1750,7 +1785,7 @@ rdtype_sutft_contr_fy23_fy22_1.to_csv(path_out)
       dtype='object')</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="35">
+<div class="cell" data-execution_count="34">
 <pre class="python3 cell-code"><code>st_emis = (
     emis_comp_pol_cnty.groupby("eis_poll_nei17")
     .agg(
@@ -1786,7 +1821,7 @@ rdtype_sutft_contr_fy23_fy22_1.to_csv(path_out)
 st_emis.to_csv(r"C:\Users\a-bibeka\Downloads\st_emis.csv", index=False)
 </code></pre>
 </div>
-<div class="cell" data-execution_count="36">
+<div class="cell" data-execution_count="35">
 <pre class="python3 cell-code"><code>%load_ext rpy2.ipython
 import pandas as pd
 st_emis = pd.read_csv(r"C:\Users\a-bibeka\Downloads\st_emis.csv")</code></pre>
@@ -1795,10 +1830,10 @@ st_emis = pd.read_csv(r"C:\Users\a-bibeka\Downloads\st_emis.csv")</code></pre>
   warnings.warn(</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="37">
+<div class="cell" data-execution_count="36">
 <pre class="python3 cell-code"><code>st_emis
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="37">
+<div class="cell-output cell-output-display" data-execution_count="36">
 <div>
 
 
@@ -1876,10 +1911,10 @@ st_emis = pd.read_csv(r"C:\Users\a-bibeka\Downloads\st_emis.csv")</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="38">
+<div class="cell" data-execution_count="37">
 <pre class="python3 cell-code"><code>st_emis["FY22 Avg Daily Emissions (Tons)"] * 365
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="38">
+<div class="cell-output cell-output-display" data-execution_count="37">
 <pre><code>0       786,729.32695
 1   136,324,214.43747
 2       158,978.82821
@@ -1890,9 +1925,10 @@ st_emis = pd.read_csv(r"C:\Users\a-bibeka\Downloads\st_emis.csv")</code></pre>
 Name: FY22 Avg Daily Emissions (Tons), dtype: float64</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="39">
-<pre class="python3 cell-code"><code>st_emis</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div class="cell" data-execution_count="38">
+<pre class="python3 cell-code"><code>st_emis
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="38">
 <div>
 
 
@@ -1970,7 +2006,7 @@ Name: FY22 Avg Daily Emissions (Tons), dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-tags="[&quot;state FY23 DP Percent Diff&quot;]" data-execution_count="40">
+<div class="cell" data-tags="[&quot;state FY23 DP Percent Diff&quot;]" data-execution_count="39">
 <pre class="python3 cell-code"><code>%%R -i st_emis -w 600 
 require(ggplot2)
 require(awtools)
@@ -1982,8 +2018,6 @@ p</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>R[write to console]: Loading required package: ggplot2
 
-R[write to console]: Learn more about the underlying theory at https://ggplot2-book.org/
-
 R[write to console]: Loading required package: awtools
 </code></pre>
 </div>
@@ -1991,13 +2025,13 @@ R[write to console]: Loading required package: awtools
 <pre><code>Saving 8.33 x 6.67 in image</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="aerr_impact_fy23_files/figure-html/cell-41-output-3.png" class="quarto-discovered-preview-image img-fluid"></p>
+<p><img src="aerr_impact_fy23_files/figure-html/cell-40-output-3.png" class="quarto-discovered-preview-image img-fluid"></p>
 </div>
 </div>
 </section>
 <section id="non-attainment-area-impact" class="level3">
 <h3 class="anchored" data-anchor-id="non-attainment-area-impact">Non-attainment area impact</h3>
-<div class="cell" data-execution_count="41">
+<div class="cell" data-execution_count="40">
 <pre class="python3 cell-code"><code>from pathlib import Path
 
 pa_non_att = Path(
@@ -2006,7 +2040,7 @@ pa_non_att = Path(
 non_att_area = pd.read_csv(pa_non_att)
 </code></pre>
 </div>
-<div class="cell" data-execution_count="42">
+<div class="cell" data-execution_count="41">
 <pre class="python3 cell-code"><code>map_cogs = dict(
     zip(
         [
@@ -2072,21 +2106,21 @@ non_att_area = (
 )
 </code></pre>
 </div>
-<div class="cell" data-execution_count="43">
+<div class="cell" data-execution_count="42">
 <pre class="python3 cell-code"><code>emis_comp_pol.columns
 </code></pre>
-<div class="cell-output cell-output-display" data-execution_count="43">
+<div class="cell-output cell-output-display" data-execution_count="42">
 <pre><code>Index(['eis_poll_nei17', 'county', 'fips', 'district', 'vmt_mix_dp',
        'vmt_mix_fy22', 'vmt_mix_fy23', 'vmt_dp', 'vmt_fy22', 'vmt_fy23',
        'emission_quant_dp', 'emission_quant_fy22', 'emission_quant_fy23'],
       dtype='object')</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="44">
+<div class="cell" data-execution_count="43">
 <pre class="python3 cell-code"><code>non_att_area_emis = non_att_area.merge(emis_comp_pol, on=["county", "eis_poll_nei17"])
 </code></pre>
 </div>
-<div class="cell" data-execution_count="45">
+<div class="cell" data-execution_count="44">
 <pre class="python3 cell-code"><code>assert set(non_att_area_emis.county) == set(
     non_att_area.county
 ), "Some county names did not match between Jon's non-attainment file and my AERR file."
@@ -2095,36 +2129,72 @@ assert all(
 ), "For a COG + Pollutant, some of the counties show up multiple times."
 </code></pre>
 </div>
-<div class="cell" data-execution_count="46">
+<div class="cell" data-execution_count="45">
 <pre class="python3 cell-code"><code>non_att_area_emis_1 = non_att_area_emis.assign(
     emission_quant_diff_fy23_fy22=lambda df: df.emission_quant_fy23
     - df.emission_quant_fy22,
     emission_quant_perdiff_fy23_fy22=lambda df: 100
     * df.emission_quant_diff_fy23_fy22
     / df.emission_quant_fy22,
-)</code></pre>
+)
+</code></pre>
 </div>
-<div class="cell" data-execution_count="47">
-<pre class="python3 cell-code"><code>non_att_area_emis_nox = non_att_area_emis_1.loc[lambda df: df.eis_poll_nei17 == "NOX"]</code></pre>
+<div class="cell" data-execution_count="46">
+<pre class="python3 cell-code"><code>non_att_area_emis_nox = non_att_area_emis_1.loc[lambda df: df.eis_poll_nei17 == "NOX"]
+</code></pre>
 </div>
 <section id="non-attainment-area-impact-nox" class="level4">
 <h4 class="anchored" data-anchor-id="non-attainment-area-impact-nox">Non-attainment area impact: NOx</h4>
-<div class="cell" data-execution_count="48">
-<pre class="python3 cell-code"><code>ppt_non_att_nox = non_att_area_emis_nox.drop(columns="COG").rename(columns={
-    "COG_ABRVN": "COG",
-    "county": "County",
-    "emission_quant_fy22": "NOx Emission 2020 + FY22 VMT-Mix",
-    "emission_quant_fy23": "NOx Emission 2020 + FY23 VMT-Mix",
-    "emission_quant_diff_fy23_fy22": "FY23 - FY22 NOx",
-    "emission_quant_perdiff_fy23_fy22": "FY23 vs. FY22 NOx (% diff)",
-})
+<div class="cell" data-execution_count="47">
+<pre class="python3 cell-code"><code>ppt_non_att_nox = non_att_area_emis_nox.drop(columns="COG").rename(
+    columns={
+        "COG_ABRVN": "COG",
+        "county": "County",
+        "emission_quant_fy22": "NOx Emission 2020 + FY22 VMT-Mix",
+        "emission_quant_fy23": "NOx Emission 2020 + FY23 VMT-Mix",
+        "emission_quant_diff_fy23_fy22": "FY23 - FY22 NOx",
+        "emission_quant_perdiff_fy23_fy22": "FY23 vs. FY22 NOx (% diff)",
+    }
+)
 
-ppt_non_att_nox = ppt_non_att_nox[["COG", "County", "NOx Emission 2020 + FY22 VMT-Mix", "NOx Emission 2020 + FY23 VMT-Mix", "FY23 - FY22 NOx", "FY23 vs. FY22 NOx (% diff)"]].sort_values(["NOx Emission 2020 + FY22 VMT-Mix"], ascending=False).reset_index(drop=True)
-ppt_non_att_nox[["COG", "NOx Emission 2020 + FY22 VMT-Mix", "NOx Emission 2020 + FY23 VMT-Mix", "FY23 - FY22 NOx", "FY23 vs. FY22 NOx (% diff)"]] = ppt_non_att_nox[["COG", "NOx Emission 2020 + FY22 VMT-Mix", "NOx Emission 2020 + FY23 VMT-Mix", "FY23 - FY22 NOx", "FY23 vs. FY22 NOx (% diff)"]].round(2)
+ppt_non_att_nox = (
+    ppt_non_att_nox[
+        [
+            "COG",
+            "County",
+            "NOx Emission 2020 + FY22 VMT-Mix",
+            "NOx Emission 2020 + FY23 VMT-Mix",
+            "FY23 - FY22 NOx",
+            "FY23 vs. FY22 NOx (% diff)",
+        ]
+    ]
+    .sort_values(["NOx Emission 2020 + FY22 VMT-Mix"], ascending=False)
+    .reset_index(drop=True)
+)
+ppt_non_att_nox[
+    [
+        "COG",
+        "NOx Emission 2020 + FY22 VMT-Mix",
+        "NOx Emission 2020 + FY23 VMT-Mix",
+        "FY23 - FY22 NOx",
+        "FY23 vs. FY22 NOx (% diff)",
+    ]
+] = ppt_non_att_nox[
+    [
+        "COG",
+        "NOx Emission 2020 + FY22 VMT-Mix",
+        "NOx Emission 2020 + FY23 VMT-Mix",
+        "FY23 - FY22 NOx",
+        "FY23 vs. FY22 NOx (% diff)",
+    ]
+].round(
+    2
+)
 path_out = r"E:/Texas A&amp;M Transportation Institute/TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors/Tasks/VMT_Mix/Presentation/ppt_non_att_nox.csv"
-ppt_non_att_nox.to_csv(path_out, index=False)</code></pre>
+ppt_non_att_nox.to_csv(path_out, index=False)
+</code></pre>
 </div>
-<div class="cell" data-execution_count="49">
+<div class="cell" data-execution_count="48">
 <pre class="python3 cell-code"><code>%%R -i non_att_area_emis_nox -w 600 
 require(ggplot2)
 require(awtools)
@@ -2137,10 +2207,10 @@ p</code></pre>
 <pre><code>Saving 8.33 x 6.67 in image</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="aerr_impact_fy23_files/figure-html/cell-50-output-2.png" class="img-fluid"></p>
+<p><img src="aerr_impact_fy23_files/figure-html/cell-49-output-2.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="50">
+<div class="cell" data-execution_count="49">
 <pre class="python3 cell-code"><code>%%R -i non_att_area_emis_nox -w 600 
 require(ggplot2)
 require(awtools)
@@ -2153,12 +2223,15 @@ p</code></pre>
 <pre><code>Saving 8.33 x 6.67 in image</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="aerr_impact_fy23_files/figure-html/cell-51-output-2.png" class="img-fluid"></p>
+<p><img src="aerr_impact_fy23_files/figure-html/cell-50-output-2.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="51">
-<pre class="python3 cell-code"><code>non_att_area_emis_1.groupby(["COG_ABRVN", "eis_poll_nei17"]).emission_quant_perdiff_fy23_fy22.describe()</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="51">
+<div class="cell" data-execution_count="50">
+<pre class="python3 cell-code"><code>non_att_area_emis_1.groupby(
+    ["COG_ABRVN", "eis_poll_nei17"]
+).emission_quant_perdiff_fy23_fy22.describe()
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="50">
 <div>
 
 
@@ -2326,9 +2399,12 @@ p</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="52">
-<pre class="python3 cell-code"><code>non_att_area_emis_1.groupby(["COG_ABRVN", "eis_poll_nei17"]).emission_quant_fy22.describe()</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="52">
+<div class="cell" data-execution_count="51">
+<pre class="python3 cell-code"><code>non_att_area_emis_1.groupby(
+    ["COG_ABRVN", "eis_poll_nei17"]
+).emission_quant_fy22.describe()
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="51">
 <div>
 
 
@@ -2499,18 +2575,23 @@ p</code></pre>
 </section>
 <section id="non-attainment-area-impact-pm10" class="level4">
 <h4 class="anchored" data-anchor-id="non-attainment-area-impact-pm10">Non-attainment area impact: PM10</h4>
-<div class="cell" data-execution_count="53">
-<pre class="python3 cell-code"><code>non_att_area_emis_1.eis_poll_nei17.unique()</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="53">
+<div class="cell" data-execution_count="52">
+<pre class="python3 cell-code"><code>non_att_area_emis_1.eis_poll_nei17.unique()
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="52">
 <pre><code>array(['NOX', 'SO2', 'PM10-PRI'], dtype=object)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="54">
-<pre class="python3 cell-code"><code>non_att_area_emis_pm10 = non_att_area_emis_1.loc[lambda df: df.eis_poll_nei17 == "PM10-PRI"]</code></pre>
+<div class="cell" data-execution_count="53">
+<pre class="python3 cell-code"><code>non_att_area_emis_pm10 = non_att_area_emis_1.loc[
+    lambda df: df.eis_poll_nei17 == "PM10-PRI"
+]
+</code></pre>
 </div>
-<div class="cell" data-execution_count="55">
-<pre class="python3 cell-code"><code>non_att_area_emis_pm10.T</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="55">
+<div class="cell" data-execution_count="54">
+<pre class="python3 cell-code"><code>non_att_area_emis_pm10.T
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="54">
 <div>
 
 
@@ -2609,32 +2690,97 @@ p</code></pre>
 </section>
 <section id="county-emission-inc-w.r.t-to-vmt-mix-and-vmt-change-emission-rate" class="level2">
 <h2 class="anchored" data-anchor-id="county-emission-inc-w.r.t-to-vmt-mix-and-vmt-change-emission-rate">County Emission Inc w.r.t to VMT-Mix and VMT Change + Emission Rate</h2>
-<div class="cell" data-execution_count="56">
-<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix = suft_emis_vmt_onroad_anly_1.loc[lambda df: df.eis_poll_nei17 == "NOX"]</code></pre>
+<div class="cell" data-execution_count="55">
+<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix = suft_emis_vmt_onroad_anly_1.loc[
+    lambda df: df.eis_poll_nei17 == "NOX"
+]
+</code></pre>
 </div>
-<div class="cell" data-execution_count="57">
-<pre class="python3 cell-code"><code>254 * 22 * 5 * 5</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="57">
+<div class="cell" data-execution_count="56">
+<pre class="python3 cell-code"><code>254 * 22 * 5 * 5
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="56">
 <pre><code>139700</code></pre>
 </div>
 </div>
+<div class="cell" data-execution_count="57">
+<pre class="python3 cell-code"><code>test = cnty_emis_by_vmt_mix.groupby(
+    ["road_type_id", "source_type_id", "fuel_type_id"]
+).vmt_mix_dp.count()
+</code></pre>
+</div>
 <div class="cell" data-execution_count="58">
-<pre class="python3 cell-code"><code>test = cnty_emis_by_vmt_mix.groupby(["road_type_id", "source_type_id", "fuel_type_id"]).vmt_mix_dp.count()</code></pre>
+<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1 = (
+    cnty_emis_by_vmt_mix.assign(
+        vmt_mix_perdiff_fy23_fy22=lambda df: 100
+        * (df.vmt_mix_fy23_13_21 - df.vmt_mix_fy22_13_19)
+        / df.vmt_mix_fy22_13_19
+    )
+    .sort_values("vmt_mix_perdiff_fy23_fy22", ascending=False)
+    .filter(
+        items=[
+            "eis_poll_nei17",
+            "county",
+            "district",
+            "road_type_id",
+            "sut_fueltype_lab",
+            "vmt_mix_perdiff_fy23_fy22",
+            "emission_rate_calc",
+            "emission_quant_fy22",
+            "emission_quant_fy23",
+            "vmt_fy22",
+            "vmt_fy23",
+            "vmt_mix_fy22_13_19",
+            "vmt_mix_fy23_13_21",
+        ]
+    )
+)
+sh_tn_to_grm = 907185
+cnty_emis_by_vmt_mix1["vmt_mix_fy22_13_19"] = (
+    cnty_emis_by_vmt_mix1["vmt_mix_fy22_13_19"] * 100
+)
+cnty_emis_by_vmt_mix1["vmt_mix_fy23_13_21"] = (
+    cnty_emis_by_vmt_mix1["vmt_mix_fy23_13_21"] * 100
+)
+cnty_emis_by_vmt_mix1["emission_rate_calc_gm"] = (
+    cnty_emis_by_vmt_mix1.emission_rate_calc * sh_tn_to_grm
+)
+cnty_emis_by_vmt_mix1["emission_quant_fy22_gm"] = (
+    cnty_emis_by_vmt_mix1.emission_quant_fy22 * sh_tn_to_grm
+)
+cnty_emis_by_vmt_mix1["emission_quant_fy23_gm"] = (
+    cnty_emis_by_vmt_mix1.emission_quant_fy23 * sh_tn_to_grm
+)
+cnty_emis_by_vmt_mix1["emission_quant_diff_fy23_fy22_gm"] = (
+    cnty_emis_by_vmt_mix1.emission_quant_fy23_gm
+    - cnty_emis_by_vmt_mix1.emission_quant_fy22_gm
+)
+cnty_emis_by_vmt_mix1["vmt_diff_fy23_fy22"] = (
+    cnty_emis_by_vmt_mix1.vmt_fy23 - cnty_emis_by_vmt_mix1.vmt_fy22
+)
+cnty_emis_by_vmt_mix1 = cnty_emis_by_vmt_mix1.drop(
+    columns=["emission_rate_calc", "emission_quant_fy22", "emission_quant_fy23"]
+)
+</code></pre>
 </div>
 <div class="cell" data-execution_count="59">
-<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1 = cnty_emis_by_vmt_mix.assign(vmt_mix_perdiff_fy23_fy22=lambda df: 100 * (df.vmt_mix_fy23_13_21 - df.vmt_mix_fy22_13_19)/ df.vmt_mix_fy22_13_19).sort_values("vmt_mix_perdiff_fy23_fy22", ascending=False).filter(items=["eis_poll_nei17", "county", "district", "road_type_id", "sut_fueltype_lab", "vmt_mix_perdiff_fy23_fy22", "emission_rate_calc", "emission_quant_fy22", "emission_quant_fy23", "vmt_fy22", "vmt_fy23", "vmt_mix_fy22_13_19", "vmt_mix_fy23_13_21"])
-sh_tn_to_grm = 907185
-cnty_emis_by_vmt_mix1["vmt_mix_fy22_13_19"] = cnty_emis_by_vmt_mix1["vmt_mix_fy22_13_19"] * 100
-cnty_emis_by_vmt_mix1["vmt_mix_fy23_13_21"]= cnty_emis_by_vmt_mix1["vmt_mix_fy23_13_21"] * 100
-cnty_emis_by_vmt_mix1["emission_rate_calc_gm"] = cnty_emis_by_vmt_mix1.emission_rate_calc * sh_tn_to_grm
-cnty_emis_by_vmt_mix1["emission_quant_fy22_gm"] = cnty_emis_by_vmt_mix1.emission_quant_fy22 * sh_tn_to_grm
-cnty_emis_by_vmt_mix1["emission_quant_fy23_gm"] = cnty_emis_by_vmt_mix1.emission_quant_fy23 * sh_tn_to_grm
-cnty_emis_by_vmt_mix1["emission_quant_diff_fy23_fy22_gm"] = cnty_emis_by_vmt_mix1.emission_quant_fy23_gm - cnty_emis_by_vmt_mix1.emission_quant_fy22_gm
-cnty_emis_by_vmt_mix1["vmt_diff_fy23_fy22"] = cnty_emis_by_vmt_mix1.vmt_fy23 - cnty_emis_by_vmt_mix1.vmt_fy22
-cnty_emis_by_vmt_mix1 = cnty_emis_by_vmt_mix1.drop(columns=["emission_rate_calc", "emission_quant_fy22", "emission_quant_fy23"])</code></pre>
+<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1.vmt_mix_fy23_13_21.describe()
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="59">
+<pre><code>count   13,090.00000
+mean         4.54545
+std         12.01765
+min          0.00006
+25%          0.05180
+50%          0.19749
+75%          1.91519
+max         73.18006
+Name: vmt_mix_fy23_13_21, dtype: float64</code></pre>
+</div>
 </div>
 <div class="cell" data-execution_count="60">
-<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1.vmt_mix_fy23_13_21.describe()</code></pre>
+<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1.vmt_mix_fy23_13_21.describe()
+</code></pre>
 <div class="cell-output cell-output-display" data-execution_count="60">
 <pre><code>count   13,090.00000
 mean         4.54545
@@ -2648,53 +2794,84 @@ Name: vmt_mix_fy23_13_21, dtype: float64</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="61">
-<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1.vmt_mix_fy23_13_21.describe()</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="61">
-<pre><code>count   13,090.00000
-mean         4.54545
-std         12.01765
-min          0.00006
-25%          0.05180
-50%          0.19749
-75%          1.91519
-max         73.18006
-Name: vmt_mix_fy23_13_21, dtype: float64</code></pre>
-</div>
+<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1[
+    [
+        "vmt_mix_perdiff_fy23_fy22",
+        "vmt_fy22",
+        "vmt_fy23",
+        "vmt_mix_fy22_13_19",
+        "vmt_mix_fy23_13_21",
+        "emission_rate_calc_gm",
+        "emission_quant_fy22_gm",
+        "emission_quant_fy23_gm",
+        "emission_quant_diff_fy23_fy22_gm",
+        "vmt_diff_fy23_fy22",
+    ]
+] = cnty_emis_by_vmt_mix1[
+    [
+        "vmt_mix_perdiff_fy23_fy22",
+        "vmt_fy22",
+        "vmt_fy23",
+        "vmt_mix_fy22_13_19",
+        "vmt_mix_fy23_13_21",
+        "emission_rate_calc_gm",
+        "emission_quant_fy22_gm",
+        "emission_quant_fy23_gm",
+        "emission_quant_diff_fy23_fy22_gm",
+        "vmt_diff_fy23_fy22",
+    ]
+].round(
+    2
+)
+</code></pre>
 </div>
 <div class="cell" data-execution_count="62">
-<pre class="python3 cell-code"><code>cnty_emis_by_vmt_mix1[['vmt_mix_perdiff_fy23_fy22', 'vmt_fy22', 'vmt_fy23',
-       'vmt_mix_fy22_13_19', 'vmt_mix_fy23_13_21', 'emission_rate_calc_gm',
-       'emission_quant_fy22_gm', 'emission_quant_fy23_gm',
-       'emission_quant_diff_fy23_fy22_gm', 'vmt_diff_fy23_fy22']] = cnty_emis_by_vmt_mix1[['vmt_mix_perdiff_fy23_fy22', 'vmt_fy22', 'vmt_fy23',
-       'vmt_mix_fy22_13_19', 'vmt_mix_fy23_13_21', 'emission_rate_calc_gm',
-       'emission_quant_fy22_gm', 'emission_quant_fy23_gm',
-       'emission_quant_diff_fy23_fy22_gm', 'vmt_diff_fy23_fy22']].round(2)</code></pre>
+<pre class="python3 cell-code"><code>emis_comp_pol_cnty.groupby(["eis_poll_nei17", "county", "district"])
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="62">
+<pre><code>&lt;pandas.core.groupby.generic.DataFrameGroupBy object at 0x000001EB9418D2B0&gt;</code></pre>
+</div>
 </div>
 <div class="cell" data-execution_count="63">
-<pre class="python3 cell-code"><code>emis_comp_pol_cnty.groupby(["eis_poll_nei17", "county", "district"])</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="63">
-<pre><code>&lt;pandas.core.groupby.generic.DataFrameGroupBy object at 0x000001CEC97C7490&gt;</code></pre>
-</div>
+<pre class="python3 cell-code"><code>cnty_emis_filt = (
+    emis_comp_pol_cnty.loc[lambda df: df.eis_poll_nei17 == "NOX"]
+    .filter(
+        items=[
+            "eis_poll_nei17",
+            "county",
+            "district",
+            "emission_quant_fy22",
+            "emission_quant_fy23",
+            "emission_quant_diff_fy23_fy22",
+            "emission_quant_perdiff_fy23_fy22",
+        ]
+    )
+    .sort_values("emission_quant_perdiff_fy23_fy22", ascending=False)
+    .reset_index(drop=True)
+)
+</code></pre>
 </div>
 <div class="cell" data-execution_count="64">
-<pre class="python3 cell-code"><code>cnty_emis_filt =  emis_comp_pol_cnty.loc[lambda df: df.eis_poll_nei17 == "NOX"].filter(items=["eis_poll_nei17", "county", "district", "emission_quant_fy22", "emission_quant_fy23", "emission_quant_diff_fy23_fy22", "emission_quant_perdiff_fy23_fy22"]).sort_values("emission_quant_perdiff_fy23_fy22", ascending=False).reset_index(drop=True)</code></pre>
-</div>
-<div class="cell" data-execution_count="65">
-<pre class="python3 cell-code"><code>cnty_emis_brkdn = cnty_emis_filt.merge(cnty_emis_by_vmt_mix1, on=["eis_poll_nei17", "county", "district"])</code></pre>
+<pre class="python3 cell-code"><code>cnty_emis_brkdn = cnty_emis_filt.merge(
+    cnty_emis_by_vmt_mix1, on=["eis_poll_nei17", "county", "district"]
+)
+</code></pre>
 </div>
 <p>Focus on the counties with the largest percent change and show what is happing in the individual row (CLhT, PC, PT etc.). Show that +ve changes + -ve changes cancel each other. And that emission rates for heavy duty vehicles are quite high.</p>
-<div class="cell" data-execution_count="66">
+<div class="cell" data-execution_count="65">
 <pre class="python3 cell-code"><code>path_out = r"E:/Texas A&amp;M Transportation Institute/TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors/Tasks/VMT_Mix/Presentation/cnty_emis_stats.csv"
 cnty_emis_filt.to_csv(path_out, index=False)
 
 path_out = r"E:/Texas A&amp;M Transportation Institute/TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors/Tasks/VMT_Mix/Presentation/cnty_emis_stats_with_breakdown.csv"
-cnty_emis_brkdn.to_csv(path_out, index=False)</code></pre>
+cnty_emis_brkdn.to_csv(path_out, index=False)
+</code></pre>
 </div>
-<div class="cell" data-execution_count="139">
+<div class="cell" data-execution_count="66">
 <pre class="python3 cell-code"><code>cnty_top_5 = cnty_emis_filt.head(5)
 cnty_tail_5 = cnty_emis_filt.tail(5)
-cnty_top_5</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="139">
+cnty_top_5
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="66">
 <div>
 
 
@@ -2768,9 +2945,10 @@ cnty_top_5</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="140">
-<pre class="python3 cell-code"><code>cnty_tail_5</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="140">
+<div class="cell" data-execution_count="67">
+<pre class="python3 cell-code"><code>cnty_tail_5
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="67">
 <div>
 
 
@@ -2845,31 +3023,37 @@ cnty_top_5</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="68">
-<pre class="python3 cell-code"><code>cnty_top_5 = cnty_top_5.rename(columns={
-    "county": "County",
-    "emission_quant_fy22": "NOx Emission 2020 + FY22 VMT-Mix",
-    "emission_quant_fy23": "NOx Emission 2020 + FY23 VMT-Mix",
-    "emission_quant_diff_fy23_fy22": "FY23 - FY22 NOx",
-    "emission_quant_perdiff_fy23_fy22": "FY23 vs. FY22 NOx (% diff)",
-})
+<pre class="python3 cell-code"><code>cnty_top_5 = cnty_top_5.rename(
+    columns={
+        "county": "County",
+        "emission_quant_fy22": "NOx Emission 2020 + FY22 VMT-Mix",
+        "emission_quant_fy23": "NOx Emission 2020 + FY23 VMT-Mix",
+        "emission_quant_diff_fy23_fy22": "FY23 - FY22 NOx",
+        "emission_quant_perdiff_fy23_fy22": "FY23 vs. FY22 NOx (% diff)",
+    }
+)
 cnty_top_5 = cnty_top_5.round(2)
-cnty_top_5.to_clipboard()</code></pre>
+cnty_top_5.to_clipboard()
+</code></pre>
 </div>
 <div class="cell" data-execution_count="69">
-<pre class="python3 cell-code"><code>cnty_tail_5 = cnty_tail_5.rename(columns={
-    "county": "County",
-    "emission_quant_fy22": "NOx Emission 2020 + FY22 VMT-Mix",
-    "emission_quant_fy23": "NOx Emission 2020 + FY23 VMT-Mix",
-    "emission_quant_diff_fy23_fy22": "FY23 - FY22 NOx",
-    "emission_quant_perdiff_fy23_fy22": "FY23 vs. FY22 NOx (% diff)",
-})
+<pre class="python3 cell-code"><code>cnty_tail_5 = cnty_tail_5.rename(
+    columns={
+        "county": "County",
+        "emission_quant_fy22": "NOx Emission 2020 + FY22 VMT-Mix",
+        "emission_quant_fy23": "NOx Emission 2020 + FY23 VMT-Mix",
+        "emission_quant_diff_fy23_fy22": "FY23 - FY22 NOx",
+        "emission_quant_perdiff_fy23_fy22": "FY23 vs. FY22 NOx (% diff)",
+    }
+)
 cnty_tail_5 = cnty_tail_5.round(2)
 cnty_tail_5.to_clipboard()
 </code></pre>
 </div>
-<div class="cell" data-execution_count="74">
-<pre class="python3 cell-code"><code>cnty_emis_brkdn.columns</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="74">
+<div class="cell" data-execution_count="70">
+<pre class="python3 cell-code"><code>cnty_emis_brkdn.columns
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="70">
 <pre><code>Index(['eis_poll_nei17', 'county', 'district', 'emission_quant_fy22',
        'emission_quant_fy23', 'emission_quant_diff_fy23_fy22',
        'emission_quant_perdiff_fy23_fy22', 'road_type_id', 'sut_fueltype_lab',
@@ -2880,313 +3064,98 @@ cnty_tail_5.to_clipboard()
       dtype='object')</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="75">
-<pre class="python3 cell-code"><code>cnty_emis_brkdn_top5 = cnty_emis_brkdn.loc[lambda df: df.county.isin(set(cnty_top_5.County))]
-cnty_emis_brkdn_tail5 = cnty_emis_brkdn.loc[lambda df: df.county.isin(set(cnty_tail_5.County))]</code></pre>
-</div>
-<div class="cell" data-execution_count="137">
-<pre class="python3 cell-code"><code>cnty_emis_brkdn_tail5a</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="137">
-<div>
-
-
-<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">eis_poll_nei17</th>
-<th data-quarto-table-cell-role="th">county</th>
-<th data-quarto-table-cell-role="th">district</th>
-<th data-quarto-table-cell-role="th">emission_quant_fy22</th>
-<th data-quarto-table-cell-role="th">emission_quant_fy23</th>
-<th data-quarto-table-cell-role="th">emission_quant_diff_fy23_fy22</th>
-<th data-quarto-table-cell-role="th">emission_quant_perdiff_fy23_fy22</th>
-<th data-quarto-table-cell-role="th">road_type_id</th>
-<th data-quarto-table-cell-role="th">sut_fueltype_lab</th>
-<th data-quarto-table-cell-role="th">vmt_mix_perdiff_fy23_fy22</th>
-<th data-quarto-table-cell-role="th">vmt_fy22</th>
-<th data-quarto-table-cell-role="th">vmt_fy23</th>
-<th data-quarto-table-cell-role="th">vmt_mix_fy22_13_19</th>
-<th data-quarto-table-cell-role="th">vmt_mix_fy23_13_21</th>
-<th data-quarto-table-cell-role="th">emission_rate_calc_gm</th>
-<th data-quarto-table-cell-role="th">emission_quant_fy22_gm</th>
-<th data-quarto-table-cell-role="th">emission_quant_fy23_gm</th>
-<th data-quarto-table-cell-role="th">emission_quant_diff_fy23_fy22_gm</th>
-<th data-quarto-table-cell-role="th">vmt_diff_fy23_fy22</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">12958</td>
-<td>NOX</td>
-<td>Archer</td>
-<td>Wichita Falls</td>
-<td>0.54289</td>
-<td>0.45211</td>
-<td>-0.09077</td>
-<td>-16.72081</td>
-<td>5</td>
-<td>OBus_Diesel</td>
-<td>62.08000</td>
-<td>7,090.92000</td>
-<td>11,492.96000</td>
-<td>0.10000</td>
-<td>0.15000</td>
-<td>5.94000</td>
-<td>115.47000</td>
-<td>187.15000</td>
-<td>71.68000</td>
-<td>4,402.04000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">12959</td>
-<td>NOX</td>
-<td>Archer</td>
-<td>Wichita Falls</td>
-<td>0.54289</td>
-<td>0.45211</td>
-<td>-0.09077</td>
-<td>-16.72081</td>
-<td>5</td>
-<td>SBus_Gas</td>
-<td>62.08000</td>
-<td>69.36000</td>
-<td>112.41000</td>
-<td>0.00000</td>
-<td>0.00000</td>
-<td>1.33000</td>
-<td>0.25000</td>
-<td>0.41000</td>
-<td>0.16000</td>
-<td>43.06000</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">12960</td>
-<td>NOX</td>
-<td>Archer</td>
-<td>Wichita Falls</td>
-<td>0.54289</td>
-<td>0.45211</td>
-<td>-0.09077</td>
-<td>-16.72081</td>
-<td>5</td>
-<td>SBus_Diesel</td>
-<td>62.08000</td>
-<td>3,748.09000</td>
-<td>6,074.90000</td>
-<td>0.05000</td>
-<td>0.08000</td>
-<td>3.28000</td>
-<td>33.65000</td>
-<td>54.53000</td>
-<td>20.89000</td>
-<td>2,326.81000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">12961</td>
-<td>NOX</td>
-<td>Archer</td>
-<td>Wichita Falls</td>
-<td>0.54289</td>
-<td>0.45211</td>
-<td>-0.09077</td>
-<td>-16.72081</td>
-<td>5</td>
-<td>TBus_Diesel</td>
-<td>62.08000</td>
-<td>2,316.15000</td>
-<td>3,754.02000</td>
-<td>0.03000</td>
-<td>0.05000</td>
-<td>3.92000</td>
-<td>24.85000</td>
-<td>40.27000</td>
-<td>15.43000</td>
-<td>1,437.87000</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">12962</td>
-<td>NOX</td>
-<td>Archer</td>
-<td>Wichita Falls</td>
-<td>0.54289</td>
-<td>0.45211</td>
-<td>-0.09077</td>
-<td>-16.72081</td>
-<td>3</td>
-<td>RT_Diesel</td>
-<td>18.39000</td>
-<td>61,901.38000</td>
-<td>73,287.30000</td>
-<td>0.04000</td>
-<td>0.05000</td>
-<td>4.84000</td>
-<td>820.22000</td>
-<td>971.09000</td>
-<td>150.87000</td>
-<td>11,385.92000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">13085</td>
-<td>NOX</td>
-<td>Somervell</td>
-<td>Fort Worth</td>
-<td>0.22541</td>
-<td>0.18708</td>
-<td>-0.03833</td>
-<td>-17.00596</td>
-<td>3</td>
-<td>MH_Gas</td>
-<td>2.09000</td>
-<td>106,345.61000</td>
-<td>108,573.41000</td>
-<td>0.10000</td>
-<td>0.11000</td>
-<td>2.21000</td>
-<td>642.93000</td>
-<td>656.40000</td>
-<td>13.47000</td>
-<td>2,227.80000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">13086</td>
-<td>NOX</td>
-<td>Somervell</td>
-<td>Fort Worth</td>
-<td>0.22541</td>
-<td>0.18708</td>
-<td>-0.03833</td>
-<td>-17.00596</td>
-<td>3</td>
-<td>MC_Gas</td>
-<td>-10.64000</td>
-<td>331,639.94000</td>
-<td>296,356.67000</td>
-<td>0.32000</td>
-<td>0.29000</td>
-<td>0.66000</td>
-<td>598.73000</td>
-<td>535.03000</td>
-<td>-63.70000</td>
-<td>-35,283.28000</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">13087</td>
-<td>NOX</td>
-<td>Somervell</td>
-<td>Fort Worth</td>
-<td>0.22541</td>
-<td>0.18708</td>
-<td>-0.03833</td>
-<td>-17.00596</td>
-<td>3</td>
-<td>CShT_Gas</td>
-<td>-25.14000</td>
-<td>854.55000</td>
-<td>639.76000</td>
-<td>0.00000</td>
-<td>0.00000</td>
-<td>0.50000</td>
-<td>1.17000</td>
-<td>0.88000</td>
-<td>-0.29000</td>
-<td>-214.80000</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">13088</td>
-<td>NOX</td>
-<td>Somervell</td>
-<td>Fort Worth</td>
-<td>0.22541</td>
-<td>0.18708</td>
-<td>-0.03833</td>
-<td>-17.00596</td>
-<td>3</td>
-<td>CLhT_Diesel</td>
-<td>-25.14000</td>
-<td>7,262,385.05000</td>
-<td>5,436,923.16000</td>
-<td>7.08000</td>
-<td>5.30000</td>
-<td>4.58000</td>
-<td>91,148.60000</td>
-<td>68,237.63000</td>
-<td>-22,910.97000</td>
-<td>-1,825,461.89000</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">13089</td>
-<td>NOX</td>
-<td>Somervell</td>
-<td>Fort Worth</td>
-<td>0.22541</td>
-<td>0.18708</td>
-<td>-0.03833</td>
-<td>-17.00596</td>
-<td>3</td>
-<td>CShT_Diesel</td>
-<td>-25.14000</td>
-<td>6,500,682.78000</td>
-<td>4,866,681.20000</td>
-<td>6.34000</td>
-<td>4.75000</td>
-<td>3.25000</td>
-<td>57,896.09000</td>
-<td>43,343.42000</td>
-<td>-14,552.67000</td>
-<td>-1,634,001.58000</td>
-</tr>
-</tbody>
-</table>
-
-<p>132 rows × 19 columns</p>
-</div>
-</div>
+<div class="cell" data-execution_count="71">
+<pre class="python3 cell-code"><code>cnty_emis_brkdn_top5 = cnty_emis_brkdn.loc[
+    lambda df: df.county.isin(set(cnty_top_5.County))
+]
+cnty_emis_brkdn_tail5 = cnty_emis_brkdn.loc[
+    lambda df: df.county.isin(set(cnty_tail_5.County))
+]
+</code></pre>
 </div>
 </section>
 <section id="vmt-mix-comp" class="level2">
 <h2 class="anchored" data-anchor-id="vmt-mix-comp">VMT-Mix Comp</h2>
-<div class="cell" data-execution_count="76">
-<pre class="python3 cell-code"><code>vmix_fy22 = vmtmix_fy22_13_19.loc[lambda df: df.yearID==2020].drop_duplicates(['txdot_dist', 'district', 'mvs_rdtype_nm', 'mvs_rdtype','dowagg', 'yearID', 'tod', 'sourceTypeName', 'sourceTypeID','fuelTypeID', 'fuelTypeDesc']).drop(columns = "fips")
-vmix_fy23 = vmtmix_fy23_13_21.loc[lambda df: df.yearID==2020].drop_duplicates(['txdot_dist', 'district', 'mvs_rdtype_nm', 'mvs_rdtype','dowagg', 'yearID', 'tod', 'sourceTypeName', 'sourceTypeID','fuelTypeID', 'fuelTypeDesc']).drop(columns = "fips")</code></pre>
+<div class="cell" data-execution_count="73">
+<pre class="python3 cell-code"><code>vmix_fy22 = (
+    vmtmix_fy22_13_19.loc[lambda df: df.yearID == 2020]
+    .drop_duplicates(
+        [
+            "txdot_dist",
+            "district",
+            "mvs_rdtype_nm",
+            "mvs_rdtype",
+            "dowagg",
+            "yearID",
+            "tod",
+            "sourceTypeName",
+            "sourceTypeID",
+            "fuelTypeID",
+            "fuelTypeDesc",
+        ]
+    )
+    .drop(columns="fips")
+)
+vmix_fy23 = (
+    vmtmix_fy23_13_21.loc[lambda df: df.yearID == 2020]
+    .drop_duplicates(
+        [
+            "txdot_dist",
+            "district",
+            "mvs_rdtype_nm",
+            "mvs_rdtype",
+            "dowagg",
+            "yearID",
+            "tod",
+            "sourceTypeName",
+            "sourceTypeID",
+            "fuelTypeID",
+            "fuelTypeDesc",
+        ]
+    )
+    .drop(columns="fips")
+)
+</code></pre>
 </div>
-<div class="cell" data-execution_count="77">
-<pre class="python3 cell-code"><code>vmtmix_comp = vmix_fy22.merge(vmix_fy23, on=['txdot_dist', 'district',  'mvs_rdtype_nm', 'mvs_rdtype','dowagg', 'yearID', 'tod', 'sourceTypeName', 'sourceTypeID',
-       'fuelTypeID', 'fuelTypeDesc'], suffixes=["_fy22", "_fy23"])
+<div class="cell" data-execution_count="74">
+<pre class="python3 cell-code"><code>vmtmix_comp = vmix_fy22.merge(
+    vmix_fy23,
+    on=[
+        "txdot_dist",
+        "district",
+        "mvs_rdtype_nm",
+        "mvs_rdtype",
+        "dowagg",
+        "yearID",
+        "tod",
+        "sourceTypeName",
+        "sourceTypeID",
+        "fuelTypeID",
+        "fuelTypeDesc",
+    ],
+    suffixes=["_fy22", "_fy23"],
+)
 vmtmix_comp.vmt_mix_fy22 = vmtmix_comp.vmt_mix_fy22 * 100
-vmtmix_comp.vmt_mix_fy23 = vmtmix_comp.vmt_mix_fy23 * 100</code></pre>
+vmtmix_comp.vmt_mix_fy23 = vmtmix_comp.vmt_mix_fy23 * 100
+</code></pre>
 </div>
-<div class="cell" data-execution_count="78">
-<pre class="python3 cell-code"><code>vmtmix_comp["vmt_mix_diff_fy23_fy22"] = vmtmix_comp.vmt_mix_fy23 - vmtmix_comp.vmt_mix_fy22
-vmtmix_comp["vmt_mix_perdiff_fy23_fy22"] = 100 * vmtmix_comp.vmt_mix_diff_fy23_fy22 / vmtmix_comp.vmt_mix_fy22
-vmtmix_comp = vmtmix_comp.sort_values("vmt_mix_perdiff_fy23_fy22", ascending=False).reset_index(drop=True)</code></pre>
+<div class="cell" data-execution_count="75">
+<pre class="python3 cell-code"><code>vmtmix_comp["vmt_mix_diff_fy23_fy22"] = (
+    vmtmix_comp.vmt_mix_fy23 - vmtmix_comp.vmt_mix_fy22
+)
+vmtmix_comp["vmt_mix_perdiff_fy23_fy22"] = (
+    100 * vmtmix_comp.vmt_mix_diff_fy23_fy22 / vmtmix_comp.vmt_mix_fy22
+)
+vmtmix_comp = vmtmix_comp.sort_values(
+    "vmt_mix_perdiff_fy23_fy22", ascending=False
+).reset_index(drop=True)
+</code></pre>
 </div>
 <p>Look in the districts with the most change and see what offsets large +ve values (hint: PC, PT,…)</p>
-<div class="cell" data-execution_count="79">
-<pre class="python3 cell-code"><code>vmtmix_comp.columns</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="79">
+<div class="cell" data-execution_count="76">
+<pre class="python3 cell-code"><code>vmtmix_comp.columns
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="76">
 <pre><code>Index(['dgcode_fy22', 'txdot_dist', 'district', 'mvs_rdtype_nm', 'mvs_rdtype',
        'dowagg', 'yearID', 'tod', 'sourceTypeName', 'sourceTypeID',
        'fuelTypeID', 'fuelTypeDesc', 'vmt_mix_fy22', 'dgcode_fy23',
@@ -3194,20 +3163,29 @@ vmtmix_comp = vmtmix_comp.sort_values("vmt_mix_perdiff_fy23_fy22", ascending=Fal
       dtype='object')</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="80">
-<pre class="python3 cell-code"><code>len(vmtmix_comp[["sourceTypeID", "fuelTypeID",]].drop_duplicates())</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="80">
+<div class="cell" data-execution_count="77">
+<pre class="python3 cell-code"><code>len(
+    vmtmix_comp[
+        [
+            "sourceTypeID",
+            "fuelTypeID",
+        ]
+    ].drop_duplicates()
+)
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="77">
 <pre><code>24</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="81">
-<pre class="python3 cell-code"><code>5 * 5 * 4 * 25 * 24 
-#5 TOD, 5 Rd Type, 5 Day Type, 25 Districts, 24 SUTFT</code></pre>
-<div class="cell-output cell-output-display" data-execution_count="81">
+<div class="cell" data-execution_count="78">
+<pre class="python3 cell-code"><code>5 * 5 * 4 * 25 * 24
+# 5 TOD, 5 Rd Type, 5 Day Type, 25 Districts, 24 SUTFT
+</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="78">
 <pre><code>60000</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="82">
+<div class="cell" data-execution_count="79">
 <pre class="python3 cell-code"><code>%%R -i vmtmix_comp -w 600 
 require(ggplot2)
 require(awtools)
@@ -3222,10 +3200,10 @@ p</code></pre>
 `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="aerr_impact_fy23_files/figure-html/cell-82-output-2.png" class="img-fluid"></p>
+<p><img src="aerr_impact_fy23_files/figure-html/cell-79-output-2.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="91">
+<div class="cell" data-execution_count="80">
 <pre class="python3 cell-code"><code>%%R -i vmtmix_comp -w 600 
 require(ggplot2)
 require(awtools)
@@ -3234,15 +3212,10 @@ theme_bw(base_size = 16) + theme(legend.position="none", axis.text.x=element_tex
 path_fig_out = "E:/Texas A&amp;M Transportation Institute/TxDOT_TPP_Projects - Task 5.3 Activity Forecasting Factors/Tasks/VMT_Mix/Presentation/vmt_mix_perdiff_fy23_fy22_ecdf.png"
 ggsave(path_fig_out)
 p</code></pre>
-<div class="cell-output cell-output-stdout">
-<pre><code>Saving 8.33 x 6.67 in image</code></pre>
 </div>
-<div class="cell-output cell-output-display">
-<p><img src="aerr_impact_fy23_files/figure-html/cell-83-output-2.png" class="img-fluid"></p>
-</div>
-</div>
-<div class="cell" data-execution_count="92">
-<pre class="python3 cell-code"><code>vmtmix_comp.vmt_mix_perdiff_fy23_fy22.describe()</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp.vmt_mix_perdiff_fy23_fy22.describe()
+</code></pre>
 <div class="cell-output cell-output-display" data-execution_count="92">
 <pre><code>count   60,000.00000
 mean         3.19081
@@ -3255,34 +3228,44 @@ max        758.98984
 Name: vmt_mix_perdiff_fy23_fy22, dtype: float64</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="94">
-<pre class="python3 cell-code"><code>vmtmix_comp.vmt_mix_perdiff_fy23_fy22.quantile(0.05)</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp.vmt_mix_perdiff_fy23_fy22.quantile(0.05)
+</code></pre>
 <div class="cell-output cell-output-display" data-execution_count="94">
 <pre><code>-24.676715536264886</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="103">
-<pre class="python3 cell-code"><code>vmtmix_comp.vmt_mix_perdiff_fy23_fy22.quantile(0.99)</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp.vmt_mix_perdiff_fy23_fy22.quantile(0.99)
+</code></pre>
 <div class="cell-output cell-output-display" data-execution_count="103">
 <pre><code>66.81256965018005</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="106">
-<pre class="python3 cell-code"><code>vmtmix_comp_dig = vmtmix_comp.loc[lambda df: df.vmt_mix_perdiff_fy23_fy22 &gt;= 66.8]</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp_dig = vmtmix_comp.loc[lambda df: df.vmt_mix_perdiff_fy23_fy22 &gt;= 66.8]
+</code></pre>
 </div>
-<div class="cell" data-execution_count="107">
-<pre class="python3 cell-code"><code>vmtmix_comp_dig.district.unique()</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp_dig.district.unique()
+</code></pre>
 <div class="cell-output cell-output-display" data-execution_count="107">
 <pre><code>array(['San Angelo', 'Bryan', 'Corpus Christi', 'Lubbock', 'Brownwood',
        'San Antonio', 'Wichita Falls', 'Amarillo', 'Waco', 'Dallas'],
       dtype=object)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="118">
-<pre class="python3 cell-code"><code>vmtmix_comp_dig1 = vmtmix_comp_dig.drop_duplicates(["district", "sourceTypeName", "fuelTypeDesc"])</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp_dig1 = vmtmix_comp_dig.drop_duplicates(
+    ["district", "sourceTypeName", "fuelTypeDesc"]
+)
+</code></pre>
 </div>
-<div class="cell" data-execution_count="122">
-<pre class="python3 cell-code"><code>vmtmix_comp_dig1.groupby(["sourceTypeName", "fuelTypeDesc"]).agg(district=("district", set))</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp_dig1.groupby(["sourceTypeName", "fuelTypeDesc"]).agg(
+    district=("district", set)
+)
+</code></pre>
 <div class="cell-output cell-output-display" data-execution_count="122">
 <div>
 
@@ -3389,12 +3372,18 @@ Name: vmt_mix_perdiff_fy23_fy22, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="133">
-<pre class="python3 cell-code"><code>vmtmix_comp_dig_low  = vmtmix_comp.loc[lambda df: df.vmt_mix_perdiff_fy23_fy22 &lt;= -50]</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp_dig_low = vmtmix_comp.loc[lambda df: df.vmt_mix_perdiff_fy23_fy22 &lt;= -50]
+</code></pre>
 </div>
-<div class="cell" data-execution_count="134">
-<pre class="python3 cell-code"><code>vmtmix_comp_dig_low1 = vmtmix_comp_dig_low.drop_duplicates(["district", "sourceTypeName", "fuelTypeDesc"])
-vmtmix_comp_dig_low1.groupby(["sourceTypeName", "fuelTypeDesc"]).agg(district=("district", set))</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp_dig_low1 = vmtmix_comp_dig_low.drop_duplicates(
+    ["district", "sourceTypeName", "fuelTypeDesc"]
+)
+vmtmix_comp_dig_low1.groupby(["sourceTypeName", "fuelTypeDesc"]).agg(
+    district=("district", set)
+)
+</code></pre>
 <div class="cell-output cell-output-display" data-execution_count="134">
 <div>
 
@@ -3465,8 +3454,13 @@ vmtmix_comp_dig_low1.groupby(["sourceTypeName", "fuelTypeDesc"]).agg(district=("
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="135">
-<pre class="python3 cell-code"><code>vmtmix_comp_dig_low2 = vmtmix_comp_dig_low1.groupby(["sourceTypeName", "fuelTypeDesc"], as_index=False).agg(district=("district", set)).values</code></pre>
+<div class="cell">
+<pre class="python3 cell-code"><code>vmtmix_comp_dig_low2 = (
+    vmtmix_comp_dig_low1.groupby(["sourceTypeName", "fuelTypeDesc"], as_index=False)
+    .agg(district=("district", set))
+    .values
+)
+</code></pre>
 </div>
 </section>
 <section id="rpython-example" class="level2">
@@ -3478,7 +3472,7 @@ vmtmix_comp_dig_low1.groupby(["sourceTypeName", "fuelTypeDesc"]).agg(district=("
 <div class="cell">
 <pre class="python3 cell-code"><code>sns.set_theme(style="whitegrid")
 fig, ax = plt.subplots(1, 1)
-sns.barplot(st_emis, x="Pollutants", y='FY23 vs. FY22 Emissions (%)', ax=ax)
+sns.barplot(st_emis, x="Pollutants", y="FY23 vs. FY22 Emissions (%)", ax=ax)
 ax.set_xlabel("Pollutants")
 ax.set_ylabel("Emission Percent Diff")
 fig.tight_layout()
