@@ -71,3 +71,7 @@ sphinx-apidoc -o ./source ..
 ```commandline
 make html
 ```
+
+7. Add the files and folders from *source* directory to *docs*.
+
+8. Add *.nojekyll*
