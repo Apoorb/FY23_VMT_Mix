@@ -11,7 +11,7 @@ basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, basedir)
 
 project = 'VMT-Mix Development for Emission Inventories'
-copyright = '2023, Emissions and Energy Modeling Team'
+copyright = '2023, Emissions and Energy Modeling Team, Texas A&M Transportation Institute'
 author = 'Emissions and Energy Modeling Team'
 release = '0.0.1'
 
