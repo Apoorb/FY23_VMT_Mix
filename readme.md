@@ -24,5 +24,4 @@ The following modules from `vmtmix_fy23` are used in this script:
 ## Acknowledgements
 This module is part of a larger project and utilizes various open-source libraries and data sources. We acknowledge the contributions of the following:
 
-- `vmtmix_fy23` module, which contains various utility functions for VMT-Mix generation.
 - OpenAI for providing the training data for ChatGPT, the language model used to generate this README.
